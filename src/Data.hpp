@@ -5,10 +5,11 @@
 
 class Data{
     public:
-        double W; /*Width of the box*/
-        std::vector<double> w; /*Width of each item*/
+        double W; /*Largura da caixa*/
+        std::vector<double> w; /*Largura de cada um dos itens*/
 
     void readData(const char* filepath);
+    int getNumberOfItems();
 
     Data(){}
 

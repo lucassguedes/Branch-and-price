@@ -1,6 +1,11 @@
 #include "Data.hpp"
 #include <fstream>
 
+int Data::getNumberOfItems()
+{
+    return this->w.size();
+}
+
 void Data::readData(const char* instanceName)
 {
     std::ifstream file(instanceName);
