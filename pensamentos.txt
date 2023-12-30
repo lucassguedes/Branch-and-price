@@ -1,0 +1,13 @@
+1. O que é o pricing?
+	O pricing consiste no processo de calcular os custos reduzidos das variáveis não básicas e, a partir deles, decidir qual dessas variáveis deverá entrar na base.
+
+2. Qual é o modelo mestre? É o modelo do bin packing?
+	O modelo mestre é o modelo original do bin packing depois de aplicarmos a decomposição de Dantzig-Wolfe, que (a grosso modo) substitui as variáveis x_{ij} (que indicam se uma peça i está no bin j) pelas variáveis lamda_i (que representam, cada uma, uma combinação possível de peças incluídas em um bin). Assim, obtemos o modelo mestre que possui um número bastante elevado de variáveis.
+	
+3. Qual é o subproblema que preciso resolver para decidir a nova coluna a entrar no modelo mestre?
+	Na etapa de pricing do simplex revisado, nós calculamos os custos reduzidos de cada uma das variáveis não básicas a fim de determinar aquela que deverá entrar na base. Porém, se o número de variáveis for muito elevado, este processo pode ser muito custoso computacionalmente. Na geração de colunas, este processo é interpretado como um problema de otimização e este é o subproblema que deve ser resolvido para determinar qual variável deve entrar no modelo mestre.
+
+4. O que o modelo dual tem a ver com isso?
+	Após escrevermos o modelo mestre, nós devemos resolver o seu modelo dual. Precisamos resolver o modelo dual para que seja possível obter os valores das variáveis duais, que serão usadas como coeficientes do modelo do subproblema de pricing. Ao resolver o subproblema de pricing, iremos obter uma combinação válida de variáveis (x_{ij}) que correspondem a uma variável lamda_i (combinação) que deverá ser adicionada na base do modelo mestre.
+
+

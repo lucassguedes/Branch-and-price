@@ -13,7 +13,7 @@ CPPC = g++
 #############################
 
 #### opcoes de compilacao e includes
-CCOPT = $(BITS_OPTION) -fPIC -O3 -fexceptions -DNDEBUG -DIL_STD -std=c++17
+CCOPT = $(BITS_OPTION) -fPIC -g -Og -fexceptions -DNDEBUG -DIL_STD -std=c++17
 CONCERTINCDIR = $(CONCERTDIR)/include
 CPLEXINCDIR   = $(CPLEXDIR)/include
 CCFLAGS = $(CCOPT) -I$(CPLEXINCDIR) -I$(CONCERTINCDIR) -I./include
