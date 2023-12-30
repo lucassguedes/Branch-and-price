@@ -4,30 +4,7 @@
 #include <fstream>
 #include <bitset>
 
-#include "MasterModel.hpp"
-
-class Master{
-public:
-  IloModel model;
-  IloBoolVarArray variables;
-  std::vector<std::vector<int> > activated_x; /*Variáveis x_{ij} ativadas em cada padrão*/
-
-  Master(IloEnv env)
-  {
-    this->model = IloModel(env);
-    this->variables = IloBoolVarArray(env);
-  }
-
-  void addVar(IloEnv env, char*name, std::vector<int> activated_x)
-  {
-    IloBoolVar newvar = IloBoolVar(env, name);
-    this->variables.add(newvar);
-    this->model.add(newvar);
-    this->activated_x.push_back(activated_x);
-  }
-
-};
-
+#include "Model.hpp"
 
 void bin_packing(Data * data)
 {
@@ -62,7 +39,7 @@ void bin_packing(Data * data)
     /*Função objetivo*/
     IloExpr obj(env);
 
-    for(size_t i = 0; i < n; i++)obj += modelData.variables[i];
+    for(size_t i = 0; i < n; i++)obj += modelData.getVar(i);
 
 
     modelData.model.add(IloMinimize(env, obj));
@@ -75,11 +52,14 @@ void bin_packing(Data * data)
 
     IloRange cst;
     IloExpr exp;
+    char cstName[100];
     for(int i = 0; i < n; i++)
     {
       exp = IloExpr(env);
-      exp += modelData.variables[i];
+      exp += modelData.getVar(i);
       cst = (exp <= 1);
+      sprintf(cstName, "UNIQUE_PATTERN(%d)", i+1);
+      cst.setName(cstName);
       modelData.model.add(cst);
     } 
 
