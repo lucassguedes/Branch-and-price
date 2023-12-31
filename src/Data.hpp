@@ -7,6 +7,7 @@ class Data{
     public:
         double W; /*Largura da caixa*/
         std::vector<double> w; /*Largura de cada um dos itens*/
+        int numberOfItems;
 
     void readData(const char* filepath);
     int getNumberOfItems();

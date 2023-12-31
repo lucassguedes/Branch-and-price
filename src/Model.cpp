@@ -11,6 +11,7 @@ Master::Master(IloEnv env)
 {
     this->model = IloModel(env);
     this->constraints = IloRangeArray(env);
+    this->objective = IloExpr(env);
 }
 
 void Master::addVar(IloEnv env, char*name, std::vector<int> activated_x)

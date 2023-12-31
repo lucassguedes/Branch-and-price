@@ -18,6 +18,7 @@ public:
     IloModel model;
     std::vector<Pattern> patterns;
     IloRangeArray constraints;
+    IloExpr objective;
 
     Master(IloEnv env);
 
@@ -37,6 +38,7 @@ public:
     IloExpr objective;
     IloRange cons;
 
+    Pricing(){}
     Pricing(IloEnv env, const int n);
 
 };

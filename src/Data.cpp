@@ -13,6 +13,7 @@ void Data::readData(const char* instanceName)
 
     if(file.is_open())
     {
+        file >> this->numberOfItems;
         file >> this->W;
         while(file >> itemWidth)this->w.push_back(itemWidth);
     }

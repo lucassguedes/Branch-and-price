@@ -3,8 +3,11 @@
 #include "Data.hpp"
 #include <fstream>
 #include <bitset>
+#include <algorithm>
 
 #include "Model.hpp"
+
+#define BIG_M 1e6
 
 Master createMasterModel(Data *data, IloEnv env)
 {
@@ -20,12 +23,10 @@ Master createMasterModel(Data *data, IloEnv env)
   }
 
    /*Função objetivo*/
-  IloExpr obj(env);
-
-  for(size_t i = 0; i < n; i++)obj += master.getVar(i);
+  for(size_t i = 0; i < n; i++)master.objective += BIG_M*master.getVar(i);
 
 
-  master.model.add(IloMinimize(env, obj));
+  master.model.add(IloMinimize(env, master.objective));
 
 
   /*No modelo mestre, para cada item i existe uma restrição associada.
@@ -59,6 +60,9 @@ IloCplex solveMaster(Master & master)
   masterSolver.setParam(IloCplex::Param::MIP::Tolerances::MIPGap, 1e-08);
 
   masterSolver.solve();
+  // std::cout << "===============================STATUS==================================\n";
+  // std::cout << masterSolver.getStatus() << std::endl;
+  // std::cout << "===============================STATUS==================================\n";
 
   return masterSolver;
 }
@@ -120,7 +124,9 @@ IloCplex solvePricing(Pricing &pricing)
 void bin_packing(Data * data)
 {
     IloEnv env;
-    IloCplex cplex;
+
+    env.setOut(env.getNullStream());
+    env.setWarning(env.getNullStream());
 
     env.setName("Bin Packing");
 
@@ -132,36 +138,43 @@ void bin_packing(Data * data)
 
 
     double pricingResult;
+    double masterResult;  
+    IloCplex masterSolver;
+    Pricing pricing;
+    IloCplex pricingSolver;
+    while(true){
 
-    do{
+        masterSolver = solveMaster(master);
 
-        IloCplex masterSolver = solveMaster(master);
+        masterResult = masterSolver.getObjValue();
 
         /*Exibindo resultados do master*/
-        masterSolver.exportModel("master.lp");
-        std::cout << "Obj: " << masterSolver.getObjValue() << std::endl;
+        // masterSolver.exportModel("master.lp");
+        std::cout << "Obj: " << masterResult << std::endl;
+
+        getchar();
 
 
         /*Obtendo valores das variáveis duais do master*/
-        IloNumArray duals(env);
 
         const int nCons = master.constraints.getSize();
 
         std::vector<double> pi; /*Valores das variáveis duais, usadas como pesos no subproblema de pricing*/
         for(int i = 0; i < nCons; i++)
         {
-          std::cout << "Dual of " << master.constraints[i].getName() << ": ";
+          // std::cout << "Dual of " << master.constraints[i].getName() << ": ";
           pi.push_back(masterSolver.getDual(master.constraints[i]));
-          std::cout << pi[pi.size()-1] << "\n";
+          // std::cout << "dualVal(" << i+1 << ") = " << dualVal << std::endl;
+          // std::cout << pi[pi.size()-1] << "\n";
         }
 
 
         /*Subproblema de pricing*/
-        Pricing pricing = createPricingModel(data, pi, nCons, env);
+        pricing = createPricingModel(data, pi, nCons, env);
 
-        IloCplex pricingSolver = solvePricing(pricing);
+        pricingSolver = solvePricing(pricing);
 
-        pricingSolver.exportModel("pricingSolver.lp");
+        // pricingSolver.exportModel("pricingSolver.lp");
 
 
 
@@ -170,52 +183,73 @@ void bin_packing(Data * data)
 
         pricingResult = pricingSolver.getObjValue();
 
-        std::cout << "pricingSolver Obj: " << pricingResult << std::endl;
-        std::cout << "Variáveis: \n";
+        // std::cout << "pricingSolver Obj: " << pricingResult << std::endl;
+        // std::cout << "Variáveis: \n";
         std::vector<int> itemsInTheNewPattern;
-        double value;
-        for(int i = 0; i < n; i++)
+        
+        if(pricingResult < 0)
         {
-          value = pricingSolver.getValue(pricing.x[i]);
-          std::cout << pricing.x[i].getName() << " = " <<  value << std::endl;
+          double value;
+          for(int i = 0; i < n; i++)
+          {
+            value = pricingSolver.getValue(pricing.x[i]);
+            // std::cout << pricing.x[i].getName() << " = " <<  value << std::endl;
+            
+            
+            if(value)itemsInTheNewPattern.push_back(i+1);
+
+          }
+
+
+          /*Adicionando nova variável no modelo mestre*/
+          sprintf(varname, "Lambda(%d)", master.getNumberOfVariables() + 1);
           
+          // std::cout << "Nome da nova variável: " << varname << std::endl;
           
-          if(value)itemsInTheNewPattern.push_back(i+1);
+          master.addVar(env, varname, itemsInTheNewPattern);
+
+          const int newVarIdx = master.getNumberOfVariables() - 1;
+          // std::cout << "newVarIdx = " << newVarIdx << "\n";
+          /*Adicionando nova variável nas restrições*/
+          for(auto i : itemsInTheNewPattern)
+          {
+            master.constraints[i-1].setExpr(master.constraints[i-1].getExpr() + master.getVar(newVarIdx));
+          }
+
+          /*Adicionando a nova variável na função objetivo*/
+
+          master.objective.setLinearCoef(master.getVar(newVarIdx), 1);
+
+          // master.model.add(master.objective);
+
+          // std::cout << "Itens que o novo padrão deve incluir: ";
+          // for(auto item: itemsInTheNewPattern)std::cout << item << " ";
+          // std::cout << "\n";
+        }else
+        {
+          std::cout << "Result: " << masterResult << "\n";
+
+          const int nVar = master.getNumberOfVariables();
+          std::cout << "Nº of master variables: " << nVar << "\n";
+          std::cout << "Variables: \n";
+          double value, total;
+          total = 0;
+          for(int i = 0; i < nVar; i++)
+          {
+            value = masterSolver.getValue(master.getVar(i));
+            std::cout << master.getVar(i).getName() << ": " <<  value  << "\n";
+            total+=value;
+          }
+
+          std::cout << "Total: " << total << "\n";
+
+          break;
 
         }
 
-        /*Adicionando nova variável no modelo mestre*/
+    }
 
-        sprintf(varname, "Lambda(%d)", master.getNumberOfVariables() + 1);
-        
-        std::cout << "Nome da nova variável: " << varname << std::endl;
-        
-        master.addVar(env, varname, itemsInTheNewPattern);
-
-        const int newVarIdx = master.getNumberOfVariables() - 1;
-        std::cout << "newVarIdx = " << newVarIdx << "\n";
-        for(auto i : itemsInTheNewPattern)
-        {
-          master.constraints[i-1].setExpr(master.constraints[i-1].getExpr() + master.getVar(newVarIdx));
-        }
-
-        // masterSolver = solveMaster(master);
-
-        // /*Exibindo resultados do master*/
-        // masterSolver.exportModel("modified_master.lp");
-
-        std::cout << "Itens que o novo padrão deve incluir: ";
-        for(auto item: itemsInTheNewPattern)std::cout << item << " ";
-        std::cout << "\n";
-
-        pricingResult = 10; /*Encerrando o loop na primeira iteração*/
-
-        env.end();
-
-    }while(pricingResult < 0);
-
-
-
+    env.end();  
     
 }
 
