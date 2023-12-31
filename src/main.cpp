@@ -57,22 +57,87 @@ void bin_packing(Data * data)
     {
       exp = IloExpr(env);
       exp += modelData.getVar(i);
-      cst = (exp <= 1);
+      cst = (exp == 1);
       sprintf(cstName, "UNIQUE_PATTERN(%d)", i+1);
       cst.setName(cstName);
-      modelData.model.add(cst);
+      modelData.addConstraint(cst);
     } 
 
     // /*Resolvendo o problema*/
     IloCplex binPacking(modelData.model);
-    // binPacking.setParam(IloCplex::TiLim, 3600);
-    // binPacking.setParam(IloCplex::Threads, 1);
-    // binPacking.setParam(IloCplex::Param::MIP::Tolerances::MIPGap, 1e-08);
+    binPacking.setParam(IloCplex::TiLim, 3600);
+    binPacking.setParam(IloCplex::Threads, 1);
+    binPacking.setParam(IloCplex::Param::MIP::Tolerances::MIPGap, 1e-08);
 
-    // binPacking.solve();
+    binPacking.solve();
 
     binPacking.exportModel("binpacking.lp");
 
+
+    std::cout << "Obj: " << binPacking.getObjValue() << std::endl;
+
+    IloNumArray duals(env);
+
+    const int nCons = modelData.constraints.getSize();
+
+    std::vector<double> pi; /*Valores das variáveis duais, usadas como pesos no subproblema de pricing*/
+    for(int i = 0; i < nCons; i++)
+    {
+      std::cout << "Dual of " << modelData.constraints[i].getName() << ": ";
+      pi.push_back(binPacking.getDual(modelData.constraints[i]));
+      std::cout << pi[pi.size()-1] << "\n";
+    }
+
+
+    /*Subproblema de pricing*/
+    Pricing pricing = Pricing(env, n);
+
+    /*Criando variáveis*/
+    for(int i = 0; i < n; i++)
+    {
+      sprintf(varname, "X(%d)", i+1);
+      pricing.x[i].setName(varname);
+      pricing.model.add(pricing.x[i]);
+    } 
+
+    pricing.objective += 1;
+
+    for(int i = 0; i < nCons; i++)
+    {
+      pricing.objective += -pi[i]*pricing.x[i];
+    }
+
+    pricing.model.add(IloMinimize(env, pricing.objective));
+
+    IloExpr pricingConsExpr(env);
+
+    for(int i = 0; i < nCons; i++)
+    {
+      pricingConsExpr += data->w[i]*pricing.x[i];
+    }
+
+    pricing.cons = (pricingConsExpr <= data->W);
+
+    pricing.model.add(pricing.cons);
+
+
+    IloCplex pricingSolver(pricing.model);
+    pricingSolver.setParam(IloCplex::TiLim, 3600);
+    pricingSolver.setParam(IloCplex::Threads, 1);
+    pricingSolver.setParam(IloCplex::Param::MIP::Tolerances::MIPGap, 1e-08);
+
+    pricingSolver.solve();
+
+    pricingSolver.exportModel("pricingSolver.lp");
+
+
+    std::cout << "pricingSolver Obj: " << pricingSolver.getObjValue() << std::endl;
+
+    std::cout << "Variáveis: \n";
+    for(int i = 0; i < n; i++)
+    {
+      std::cout << pricing.x[i].getName() << " = " << pricingSolver.getValue(pricing.x[i]) << std::endl;
+    }
 
     // std::cout << "Objective value = " << binPacking.getObjValue() << std::endl;
 
