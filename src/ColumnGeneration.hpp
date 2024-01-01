@@ -6,9 +6,10 @@
 #include <vector>
 #include "Data.hpp"
 #include "Model.hpp"
+#include "Node.hpp"
 
 
-void columnGeneration(Data * data);
+std::vector<Pattern> columnGeneration(Data * data, NodeInfo nodeInfo);
 
 
 

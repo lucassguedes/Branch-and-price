@@ -23,7 +23,7 @@ int main(int argc, char** argv)
     data->readData(argv[1]);
 
 
-    columnGeneration(data);
+    columnGeneration(data, NodeInfo());
 
 
     delete data;

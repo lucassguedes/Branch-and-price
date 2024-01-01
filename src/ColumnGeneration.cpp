@@ -2,7 +2,7 @@
 
 
 
-void columnGeneration(Data * data)
+std::vector<Pattern> columnGeneration(Data * data, NodeInfo nodeInfo)
 {
     IloEnv env;
 
@@ -106,7 +106,7 @@ void columnGeneration(Data * data)
         }
 
     }
+    env.end();    
 
-    env.end();  
-    
+    return master.patterns;
 }
