@@ -11,3 +11,23 @@
 	Após escrevermos o modelo mestre, nós devemos resolver o seu modelo dual. Precisamos resolver o modelo dual para que seja possível obter os valores das variáveis duais, que serão usadas como coeficientes do modelo do subproblema de pricing. Ao resolver o subproblema de pricing, iremos obter uma combinação válida de variáveis (x_{ij}) que correspondem a uma variável lamda_i (combinação) que deverá ser adicionada na base do modelo mestre.
 
 
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+# Branch-and-Price
+
+1. O que são as variáveis z_ij?
+
+Elas devem conter a soma de todos os valores de lambda os quais representam padrões que contém ao mesmo tempo os itens i e j
+
+2. O algoritmo de geração de colunas deve estar dentro do branch-and-price?
+
+Sim, o algoritmo de geração de colunas é executado em cada uma das folhas do branch-and-price.
+
+3. O que deve ser feito no momento da ramificação do branch-and-brice?
+
+Ao finalizar o algoritmo de geração de colunas, é necessário obter o vetor z, e selecionar dele o elemento z_ij mais próximo de 0.5. A partir disso, será obtido um par de itens cujos índices devem ser guardados. Logo em seguida, deve haver a ramificação que dará origem a duas folhas. Em uma ramificação, os itens i e j deverão sempre estar juntos e na outra deverão estar sempre separados. Estas restrições extras devem ser incorporadas no modelo de pricing de cada um das folhas resultantes.
+
+4. Qual condição deve ser atendida para que branch-and-price pode uma folha?
+
+Quando todas as variáveis lambdas forem inteiras.
+
