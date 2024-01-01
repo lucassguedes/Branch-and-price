@@ -165,6 +165,7 @@ void bin_packing(Data * data)
       Por isso, inicialmente o modelo é criado uma só vez com os coeficientes todos iguais 
       a 1. Durante a execução do laço, os coeficientes da função objetivo são apenas atualizados.*/
     std::vector<double> pi(nCons, 1.0f);
+    std::vector<int> itemsInTheNewPattern;
     pricing = createPricingModel(data, pi, nCons, env);
     while(true){
         pi.clear();
@@ -174,7 +175,7 @@ void bin_packing(Data * data)
 
         /*Exibindo resultados do master*/
         // masterSolver.exportModel("master.lp");
-        std::cout << "Obj: " << masterResult << std::endl;
+        // std::cout << "Obj: " << masterResult << std::endl;
 
         /*Obtendo valores das variáveis duais do master*/
         /*Valores das variáveis duais, usadas como pesos no subproblema de pricing*/
@@ -202,8 +203,9 @@ void bin_packing(Data * data)
 
         // std::cout << "pricingSolver Obj: " << pricingResult << std::endl;
         // std::cout << "Variáveis: \n";
-        std::vector<int> itemsInTheNewPattern;
         
+        
+        itemsInTheNewPattern.clear();
         if(pricingResult < 0)
         {
           double value;
