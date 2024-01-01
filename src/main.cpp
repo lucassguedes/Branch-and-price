@@ -106,6 +106,15 @@ Pricing createPricingModel(Data * data, std::vector<double> pi, const int nCons,
   return pricing;
 }
 
+void updatePricingCoefficients(Pricing &pricing, const int nCons, std::vector<double>&pi)
+{
+  for(int i = 0; i < nCons; i++)
+  {
+    pricing.objective.setLinearCoef(pricing.x[i], -pi[i]);
+  }
+
+}
+
 IloCplex solvePricing(Pricing &pricing, IloCplex & pricingSolver)
 {
   pricingSolver.extract(pricing.model);
@@ -150,7 +159,13 @@ void bin_packing(Data * data)
     pricingSolver.setParam(IloCplex::TiLim, 3600);
     pricingSolver.setParam(IloCplex::Threads, 1);
     pricingSolver.setParam(IloCplex::Param::MIP::Tolerances::MIPGap, 1e-08);
-    std::vector<double> pi;
+
+
+    /*A única coisa que muda no modelo de pricing são os coeficientes da função objetivo.
+      Por isso, inicialmente o modelo é criado uma só vez com os coeficientes todos iguais 
+      a 1. Durante a execução do laço, os coeficientes da função objetivo são apenas atualizados.*/
+    std::vector<double> pi(nCons, 1.0f);
+    pricing = createPricingModel(data, pi, nCons, env);
     while(true){
         pi.clear();
         masterSolver = solveMaster(master, masterSolver);
@@ -171,9 +186,8 @@ void bin_packing(Data * data)
           // std::cout << pi[pi.size()-1] << "\n";
         }
 
-
-        /*Subproblema de pricing*/
-        pricing = createPricingModel(data, pi, nCons, env);
+        /*Atualizando coeficientes da função objetivo do subproblema de pricing*/
+        updatePricingCoefficients(pricing, nCons, pi);
 
         pricingSolver = solvePricing(pricing, pricingSolver);
 
