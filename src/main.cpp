@@ -4,6 +4,7 @@
 #include <fstream>
 #include <bitset>
 #include <algorithm>
+#include <string>
 
 #include "Model.hpp"
 
@@ -51,13 +52,10 @@ Master createMasterModel(Data *data, IloEnv env)
 }
 
 
-IloCplex solveMaster(Master & master)
+IloCplex solveMaster(Master & master, IloCplex & masterSolver)
 {
   // /*Resolvendo o problema*/
-  IloCplex masterSolver(master.model);
-  masterSolver.setParam(IloCplex::TiLim, 3600);
-  masterSolver.setParam(IloCplex::Threads, 1);
-  masterSolver.setParam(IloCplex::Param::MIP::Tolerances::MIPGap, 1e-08);
+  masterSolver.extract(master.model);
 
   masterSolver.solve();
   // std::cout << "===============================STATUS==================================\n";
@@ -108,12 +106,9 @@ Pricing createPricingModel(Data * data, std::vector<double> pi, const int nCons,
   return pricing;
 }
 
-IloCplex solvePricing(Pricing &pricing)
+IloCplex solvePricing(Pricing &pricing, IloCplex & pricingSolver)
 {
-  IloCplex pricingSolver(pricing.model);
-  pricingSolver.setParam(IloCplex::TiLim, 3600);
-  pricingSolver.setParam(IloCplex::Threads, 1);
-  pricingSolver.setParam(IloCplex::Param::MIP::Tolerances::MIPGap, 1e-08);
+  pricingSolver.extract(pricing.model);
 
   pricingSolver.solve();
 
@@ -139,12 +134,26 @@ void bin_packing(Data * data)
 
     double pricingResult;
     double masterResult;  
-    IloCplex masterSolver;
     Pricing pricing;
-    IloCplex pricingSolver;
-    while(true){
 
-        masterSolver = solveMaster(master);
+
+    const int nCons = master.constraints.getSize();
+
+
+    IloCplex masterSolver(master.model);
+    masterSolver.setParam(IloCplex::TiLim, 3600);
+    masterSolver.setParam(IloCplex::Threads, 1);
+    masterSolver.setParam(IloCplex::Param::MIP::Tolerances::MIPGap, 1e-08);
+
+
+    IloCplex pricingSolver(env);
+    pricingSolver.setParam(IloCplex::TiLim, 3600);
+    pricingSolver.setParam(IloCplex::Threads, 1);
+    pricingSolver.setParam(IloCplex::Param::MIP::Tolerances::MIPGap, 1e-08);
+    std::vector<double> pi;
+    while(true){
+        pi.clear();
+        masterSolver = solveMaster(master, masterSolver);
 
         masterResult = masterSolver.getObjValue();
 
@@ -152,14 +161,8 @@ void bin_packing(Data * data)
         // masterSolver.exportModel("master.lp");
         std::cout << "Obj: " << masterResult << std::endl;
 
-        getchar();
-
-
         /*Obtendo valores das variáveis duais do master*/
-
-        const int nCons = master.constraints.getSize();
-
-        std::vector<double> pi; /*Valores das variáveis duais, usadas como pesos no subproblema de pricing*/
+        /*Valores das variáveis duais, usadas como pesos no subproblema de pricing*/
         for(int i = 0; i < nCons; i++)
         {
           // std::cout << "Dual of " << master.constraints[i].getName() << ": ";
@@ -172,7 +175,7 @@ void bin_packing(Data * data)
         /*Subproblema de pricing*/
         pricing = createPricingModel(data, pi, nCons, env);
 
-        pricingSolver = solvePricing(pricing);
+        pricingSolver = solvePricing(pricing, pricingSolver);
 
         // pricingSolver.exportModel("pricingSolver.lp");
 
@@ -200,10 +203,9 @@ void bin_packing(Data * data)
 
           }
 
-
           /*Adicionando nova variável no modelo mestre*/
           sprintf(varname, "Lambda(%d)", master.getNumberOfVariables() + 1);
-          
+               
           // std::cout << "Nome da nova variável: " << varname << std::endl;
           
           master.addVar(env, varname, itemsInTheNewPattern);
