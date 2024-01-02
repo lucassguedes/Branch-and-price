@@ -25,6 +25,7 @@ public:
     IloExpr objective;
 
     Master(IloEnv env);
+    Master(){}
 
     void addVar(IloEnv env, char *name, std::vector<int> activated_x);
     void addConstraint(IloRange cst);

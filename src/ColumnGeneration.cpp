@@ -1,9 +1,13 @@
 #include "ColumnGeneration.hpp"
 
 
+CGResult::CGResult(Master master, double numberOfBins){
+  this->master = master;
+  this->numberOfBins = numberOfBins;
+}
 
-Master columnGeneration(Data * data, NodeInfo nodeInfo)
-{
+
+CGResult columnGeneration(Data * data, NodeInfo nodeInfo){
     IloEnv env;
 
     env.setOut(env.getNullStream());
@@ -93,16 +97,12 @@ Master columnGeneration(Data * data, NodeInfo nodeInfo)
           const int nVar = master.getNumberOfVariables();
           std::cout << "Nº of master variables: " << nVar << "\n";
           std::cout << "Variables: \n";
-          double value, total;
-          total = 0;
+          double value;
           for(int i = 0; i < nVar; i++)
           {
             value = masterSolver.getValue(master.getVar(i));
             std::cout << master.getVar(i).getName() << ": " <<  value  << "\n";
-            total+=value;
           }
-
-          std::cout << "Total: " << total << "\n";
 
           break;
 
@@ -111,5 +111,5 @@ Master columnGeneration(Data * data, NodeInfo nodeInfo)
     }
     env.end();    
 
-    return master;
+    return CGResult(master, masterResult);
 }

@@ -8,8 +8,15 @@
 #include "Model.hpp"
 #include "Node.hpp"
 
+typedef struct CGResult{
+    Master master;
+    double numberOfBins;
 
-Master columnGeneration(Data * data, NodeInfo nodeInfo);
+    CGResult(Master master, double numberOfBins);
+};
+
+
+CGResult columnGeneration(Data * data, NodeInfo nodeInfo);
 
 
 
