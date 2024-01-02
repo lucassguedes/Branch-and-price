@@ -7,6 +7,7 @@
 #include <string>
 #include "Model.hpp"
 #include "ColumnGeneration.hpp"
+#include "BranchAndPrice.hpp"
 
 int main(int argc, char** argv)
 {
@@ -28,7 +29,7 @@ int main(int argc, char** argv)
     node.mustBeSeparated.push_back(std::make_pair(1, 2));
     node.mustBeTogether.push_back(std::make_pair(4, 5));
 
-    columnGeneration(data, node);
+    branchAndPrice(data, NodeInfo());
 
 
     delete data;

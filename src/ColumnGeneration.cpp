@@ -1,13 +1,13 @@
 #include "ColumnGeneration.hpp"
 
 
-CGResult::CGResult(Master master, double numberOfBins){
+NodeRes::NodeRes(Master master, double numberOfBins){
   this->master = master;
   this->numberOfBins = numberOfBins;
 }
 
 
-CGResult columnGeneration(Data * data, NodeInfo nodeInfo){
+NodeRes columnGeneration(Data * data, NodeInfo nodeInfo){
     IloEnv env;
 
     env.setOut(env.getNullStream());
@@ -101,7 +101,8 @@ CGResult columnGeneration(Data * data, NodeInfo nodeInfo){
           for(int i = 0; i < nVar; i++)
           {
             value = masterSolver.getValue(master.getVar(i));
-            std::cout << master.getVar(i).getName() << ": " <<  value  << "\n";
+            master.patterns[i].value = value;
+            std::cout << master.getVar(i).getName() << ": " <<  master.patterns[i].value  << "\n";
           }
 
           break;
@@ -111,5 +112,5 @@ CGResult columnGeneration(Data * data, NodeInfo nodeInfo){
     }
     env.end();    
 
-    return CGResult(master, masterResult);
+    return NodeRes(master, masterResult);
 }

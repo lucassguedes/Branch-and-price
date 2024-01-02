@@ -11,6 +11,7 @@ class Pattern
 {
 public:
     IloNumVar var;
+    double value;
     std::vector<int> activated_x;
 
     Pattern(IloNumVar var, std::vector<int> activated_x);

@@ -3,7 +3,10 @@
 #include "Data.hpp"
 #include "Model.hpp"
 #include "ColumnGeneration.hpp"
+#include <vector>
 
-void branchAndPrice(Data * data);
+void branchAndPrice(Data * data, NodeInfo nodeInfo);
+std::vector<std::vector<double> > getZ(NodeRes res, const int nItems);
+std::pair<int, int> getTargetPair(const std::vector<std::vector<double> > &z);
 
 #endif 
