@@ -103,7 +103,7 @@ void solveMaster(Master & master, IloCplex & masterSolver)
 }
 
 
-Pricing createPricingModel(Data * data, std::vector<double> pi, const int nCons, IloEnv env)
+Pricing createPricingModel(Data * data, NodeInfo &nodeInfo, std::vector<double> pi, const int nCons, IloEnv env)
 {
   const int n = data->getNumberOfItems();
   char varname[100];
@@ -136,9 +136,27 @@ Pricing createPricingModel(Data * data, std::vector<double> pi, const int nCons,
     pricingConsExpr += data->w[i]*pricing.x[i];
   }
 
-  pricing.cons = (pricingConsExpr <= data->W);
+  pricing.capCons = (pricingConsExpr <= data->W);
+  pricing.model.add(pricing.capCons);
 
-  pricing.model.add(pricing.cons);
+  /*Restrições extras - Características da ramificação*/
+  /*Se o item i estiver na solução, o item j também estará (e vice-versa): x_i = x_j */
+  IloRange rg;
+  for(auto &[first, second] : nodeInfo.mustBeTogether)
+  {
+    rg = (pricing.x[first] - pricing.x[second] == 0);
+    pricing.nodeCons.push_back(rg);
+    pricing.model.add(rg);
+  }
+
+  /*Se o item i estiver na solução, o item j não pode estar (e vice-versa): x_i + x_j <= 1*/
+  for(auto &[first, second] : nodeInfo.mustBeTogether)
+  {
+    rg = (pricing.x[first] + pricing.x[second] <= 1);
+    pricing.nodeCons.push_back(rg);
+    pricing.model.add(rg);
+  }
+  
 
   return pricing;
 }

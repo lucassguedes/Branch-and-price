@@ -3,6 +3,7 @@
 #include <ilcplex/ilocplex.h>
 #include <vector>
 #include "Data.hpp"
+#include "Node.hpp"
 
 #define BIG_M 1e6
 
@@ -39,7 +40,8 @@ public:
     IloBoolVarArray x;
     IloModel model;
     IloExpr objective;
-    IloRange cons;
+    IloRange capCons; /*Restrição de capacidade*/
+    std::vector<IloRange> nodeCons; /*Restrições características da ramificação*/
 
     Pricing(){}
     Pricing(IloEnv env, const int n);
@@ -49,7 +51,7 @@ public:
 
 Master createMasterModel(Data *data, IloEnv env);
 void solveMaster(Master & master, IloCplex & masterSolver);
-Pricing createPricingModel(Data * data, std::vector<double> pi, const int nCons, IloEnv env);
+Pricing createPricingModel(Data * data, NodeInfo &nodeInfo, std::vector<double> pi, const int nCons, IloEnv env);
 void updatePricingCoefficients(Pricing &pricing, const int nCons, std::vector<double>&pi);
 void solvePricing(Pricing &pricing, IloCplex & pricingSolver);
 

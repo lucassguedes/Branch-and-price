@@ -9,7 +9,7 @@
 #include "Node.hpp"
 
 
-std::vector<Pattern> columnGeneration(Data * data, NodeInfo nodeInfo);
+Master columnGeneration(Data * data, NodeInfo nodeInfo);
 
 
 

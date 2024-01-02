@@ -1,6 +1,7 @@
 #ifndef __NODE_H__
 #define __NODE_H__
 #include <vector>
+#include <iostream>
 
 class NodeInfo{
 public:
@@ -9,6 +10,8 @@ public:
     std::vector<std::pair<int, int> > mustBeSeparated;
 
     NodeInfo(){}
+
+    friend std::ostream& operator << (std::ostream& os, const NodeInfo& node);
 };
 
 

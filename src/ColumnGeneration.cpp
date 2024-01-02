@@ -2,7 +2,7 @@
 
 
 
-std::vector<Pattern> columnGeneration(Data * data, NodeInfo nodeInfo)
+Master columnGeneration(Data * data, NodeInfo nodeInfo)
 {
     IloEnv env;
 
@@ -43,7 +43,8 @@ std::vector<Pattern> columnGeneration(Data * data, NodeInfo nodeInfo)
       a 1. Durante a execução do laço, os coeficientes da função objetivo são apenas atualizados.*/
     std::vector<double> pi(nCons, 1.0f);
     std::vector<int> itemsInTheNewPattern;
-    pricing = createPricingModel(data, pi, nCons, env);
+    pricing = createPricingModel(data, nodeInfo, pi, nCons, env);
+
     while(true){
         pi.clear();
         solveMaster(master, masterSolver);
@@ -61,6 +62,8 @@ std::vector<Pattern> columnGeneration(Data * data, NodeInfo nodeInfo)
 
         solvePricing(pricing, pricingSolver);
         pricingResult = pricingSolver.getObjValue();
+
+        pricingSolver.exportModel("pricing.lp");
         
         itemsInTheNewPattern.clear();
         if(pricingResult < 0)
@@ -108,5 +111,5 @@ std::vector<Pattern> columnGeneration(Data * data, NodeInfo nodeInfo)
     }
     env.end();    
 
-    return master.patterns;
+    return master;
 }

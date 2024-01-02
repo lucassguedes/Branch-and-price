@@ -22,8 +22,13 @@ int main(int argc, char** argv)
 
     data->readData(argv[1]);
 
+    NodeInfo node;
 
-    columnGeneration(data, NodeInfo());
+    node.id = 1;
+    node.mustBeSeparated.push_back(std::make_pair(1, 2));
+    node.mustBeTogether.push_back(std::make_pair(4, 5));
+
+    columnGeneration(data, node);
 
 
     delete data;
