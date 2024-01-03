@@ -150,7 +150,7 @@ Pricing createPricingModel(Data * data, NodeInfo &nodeInfo, std::vector<double> 
   }
 
   /*Se o item i estiver na solução, o item j não pode estar (e vice-versa): x_i + x_j <= 1*/
-  for(auto &[first, second] : nodeInfo.mustBeTogether)
+  for(auto &[first, second] : nodeInfo.mustBeSeparated)
   {
     rg = (pricing.x[first] + pricing.x[second] <= 1);
     pricing.nodeCons.push_back(rg);

@@ -4,9 +4,11 @@
 #include "Model.hpp"
 #include "ColumnGeneration.hpp"
 #include <vector>
+#include <algorithm>
 
 void branchAndPrice(Data * data, NodeInfo nodeInfo);
 std::vector<std::vector<double> > getZ(NodeRes res, const int nItems);
-std::pair<int, int> getTargetPair(const std::vector<std::vector<double> > &z);
+std::pair<int, int> getTargetPair(const std::vector<std::vector<double> > &z, const NodeInfo &nodeInfo);
+bool isAnIntegerSolution(const NodeRes &res);
 
 #endif 

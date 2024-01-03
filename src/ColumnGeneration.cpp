@@ -1,9 +1,10 @@
 #include "ColumnGeneration.hpp"
 
 
-NodeRes::NodeRes(Master master, double numberOfBins){
+NodeRes::NodeRes(Master master, double numberOfBins, IloAlgorithm::Status status){
   this->master = master;
   this->numberOfBins = numberOfBins;
+  this->status = status;
 }
 
 
@@ -53,6 +54,8 @@ NodeRes columnGeneration(Data * data, NodeInfo nodeInfo){
         pi.clear();
         solveMaster(master, masterSolver);
 
+        masterSolver.exportModel("master.lp");
+
         masterResult = masterSolver.getObjValue();
         /*Obtendo valores das variáveis duais do master*/
         /*Valores das variáveis duais, usadas como pesos no subproblema de pricing*/
@@ -63,8 +66,13 @@ NodeRes columnGeneration(Data * data, NodeInfo nodeInfo){
 
         /*Atualizando coeficientes da função objetivo do subproblema de pricing*/
         updatePricingCoefficients(pricing, nCons, pi);
-
         solvePricing(pricing, pricingSolver);
+
+        if(pricingSolver.getStatus() != IloAlgorithm::Optimal){
+          std::cout << "O modelo é inviável!\n";
+          return NodeRes(master, masterResult, pricingSolver.getStatus());
+        }
+
         pricingResult = pricingSolver.getObjValue();
 
         pricingSolver.exportModel("pricing.lp");
@@ -92,6 +100,7 @@ NodeRes columnGeneration(Data * data, NodeInfo nodeInfo){
           master.objective.setLinearCoef(master.getVar(newVarIdx), 1);
         }else
         {
+          
           std::cout << "Result: " << masterResult << "\n";
 
           const int nVar = master.getNumberOfVariables();
@@ -110,7 +119,8 @@ NodeRes columnGeneration(Data * data, NodeInfo nodeInfo){
         }
 
     }
+    IloAlgorithm::Status status = masterSolver.getStatus();
     env.end();    
 
-    return NodeRes(master, masterResult);
+    return NodeRes(master, masterResult, status);
 }

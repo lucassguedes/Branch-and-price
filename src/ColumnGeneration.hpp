@@ -11,8 +11,9 @@
 typedef struct NodeRes{
     Master master;
     double numberOfBins;
+    IloAlgorithm::Status status;
 
-    NodeRes(Master master, double numberOfBins);
+    NodeRes(Master master, double numberOfBins, IloAlgorithm::Status status);
 };
 
 
