@@ -54,7 +54,7 @@ NodeRes columnGeneration(Data * data, NodeInfo nodeInfo){
         pi.clear();
         solveMaster(master, masterSolver);
 
-        masterSolver.exportModel("master.lp");
+        // masterSolver.exportModel("master.lp");
 
         masterResult = masterSolver.getObjValue();
         /*Obtendo valores das variáveis duais do master*/
@@ -68,17 +68,13 @@ NodeRes columnGeneration(Data * data, NodeInfo nodeInfo){
         updatePricingCoefficients(pricing, nCons, pi);
         solvePricing(pricing, pricingSolver);
 
-        if(pricingSolver.getStatus() != IloAlgorithm::Optimal){
-          std::cout << "O modelo é inviável!\n";
-          return NodeRes(master, masterResult, pricingSolver.getStatus());
-        }
-
         pricingResult = pricingSolver.getObjValue();
 
-        pricingSolver.exportModel("pricing.lp");
+        // pricingSolver.exportModel("pricing.lp");
         
         itemsInTheNewPattern.clear();
-        if(pricingResult < 0)
+        // std::cout << "Pricing result: " << pricingResult << "\n";
+        if(pricingResult < -1e-6)
         {
           for(int i = 0; i < n; i++)
           {
@@ -105,13 +101,13 @@ NodeRes columnGeneration(Data * data, NodeInfo nodeInfo){
 
           const int nVar = master.getNumberOfVariables();
           std::cout << "Nº of master variables: " << nVar << "\n";
-          std::cout << "Variables: \n";
+          // std::cout << "Variables: \n";
           double value;
           for(int i = 0; i < nVar; i++)
           {
             value = masterSolver.getValue(master.getVar(i));
             master.patterns[i].value = value;
-            std::cout << master.getVar(i).getName() << ": " <<  master.patterns[i].value  << "\n";
+            // std::cout << master.getVar(i).getName() << ": " <<  master.patterns[i].value  << "\n";
           }
 
           break;

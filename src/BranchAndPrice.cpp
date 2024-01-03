@@ -14,10 +14,7 @@ std::vector<std::vector<double> > getZ(NodeRes res, const int nItems)
         {
             for(int j = i+1; j < nPatternItems; j++)
             {
-                if(j != i)
-                {
-                    z[i][j] += p.value;
-                }
+                z[i][j] += p.value;
             }
         }
     }
@@ -32,15 +29,16 @@ std::pair<int, int> getTargetPair(const std::vector<std::vector<double> > &z, co
     double dist;
     std::pair<int, int> target = std::make_pair(-1, -1);
     bool alreadyTogether, alreadySeparated, pairIsValid;
+    // std::cout << nodeInfo << "\n";
     for(int i = 0; i < n; i++)
     {
-        for(int j = 0; j < n; j++)
+        for(int j = i+1; j < n; j++)
         {
             dist = fabs(z[i][j] - 0.5);
             alreadyTogether = (std::find(nodeInfo.mustBeTogether.begin(), nodeInfo.mustBeTogether.end(), std::make_pair(i, j)) != nodeInfo.mustBeTogether.end());
             alreadySeparated = (std::find(nodeInfo.mustBeSeparated.begin(), nodeInfo.mustBeSeparated.end(), std::make_pair(i, j)) != nodeInfo.mustBeSeparated.end());
             pairIsValid = (!alreadyTogether && !alreadySeparated);
-            if(dist < smallerDist && i != j && pairIsValid)
+            if(dist < smallerDist && pairIsValid)
             {
                 smallerDist = dist;
                 target = std::make_pair(i, j);
@@ -65,17 +63,13 @@ bool isAnIntegerSolution(const NodeRes &res)
 
 void branchAndPrice(Data * data, NodeInfo nodeInfo)
 {
-    // static double bestSolutionEver;
     NodeRes res = columnGeneration(data, nodeInfo);
-
-    std::cout << nodeInfo << std::endl;
-    getchar();
     if(res.status == IloAlgorithm::Optimal && isAnIntegerSolution(res)){
         /*Podar*/
         std::cout << "Finalizado!\n";
     }else{
         std::cout << "Status da última execução: " << res.status << "\n";
-        getchar();
+        // getchar();
         /*Obter valores de z_ij*/
         /*Chamar o branchAndPrice novamente
             - Proibindo os itens i e j de ficarem juntos
@@ -84,16 +78,16 @@ void branchAndPrice(Data * data, NodeInfo nodeInfo)
         */
        std::vector<std::vector<double> > z = getZ(res, data->numberOfItems);
 
-       for(int i = 0; i < z.size(); i++)
-       {
-            for(int j = 0; j < z[i].size(); j++)
-            {
-                if(z[i][j] > EPSILON)
-                {
-                    std::cout << "z[" << i << "][" << j << "] = " << z[i][j] << "\n";
-                }
-            }
-       }
+    //    for(int i = 0; i < z.size(); i++)
+    //    {
+    //         for(int j = 0; j < z[i].size(); j++)
+    //         {
+    //             if(z[i][j] > EPSILON)
+    //             {
+    //                 std::cout << "z[" << i << "][" << j << "] = " << z[i][j] << "\n";
+    //             }
+    //         }
+    //    }
 
        std::pair<int, int> target = getTargetPair(z, nodeInfo);
     

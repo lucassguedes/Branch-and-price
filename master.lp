@@ -21,20 +21,7 @@ Minimize
        + 1000000 Lambda(49) + 1000000 Lambda(50) + Lambda(51) + Lambda(52)
        + Lambda(53) + Lambda(54) + Lambda(55) + Lambda(56) + Lambda(57)
        + Lambda(58) + Lambda(59) + Lambda(60) + Lambda(61) + Lambda(62)
-       + Lambda(63) + Lambda(64) + Lambda(65) + Lambda(66) + Lambda(67)
-       + Lambda(68) + Lambda(69) + Lambda(70) + Lambda(71) + Lambda(72)
-       + Lambda(73) + Lambda(74) + Lambda(75) + Lambda(76) + Lambda(77)
-       + Lambda(78) + Lambda(79) + Lambda(80) + Lambda(81) + Lambda(82)
-       + Lambda(83) + Lambda(84) + Lambda(85) + Lambda(86) + Lambda(87)
-       + Lambda(88) + Lambda(89) + Lambda(90) + Lambda(91) + Lambda(92)
-       + Lambda(93) + Lambda(94) + Lambda(95) + Lambda(96) + Lambda(97)
-       + Lambda(98) + Lambda(99) + Lambda(100) + Lambda(101) + Lambda(102)
-       + Lambda(103) + Lambda(104) + Lambda(105) + Lambda(106) + Lambda(107)
-       + Lambda(108) + Lambda(109) + Lambda(110) + Lambda(111) + Lambda(112)
-       + Lambda(113) + Lambda(114) + Lambda(115) + Lambda(116) + Lambda(117)
-       + Lambda(118) + Lambda(119) + Lambda(120) + Lambda(121) + Lambda(122)
-       + Lambda(123) + Lambda(124) + Lambda(125) + Lambda(126) + Lambda(127)
-       + Lambda(128)
+       + Lambda(63) + Lambda(64) + Lambda(65)
 Subject To
  UNIQUE_PATTERN(1):  Lambda(1)  = 1
  UNIQUE_PATTERN(2):  Lambda(2)  = 1
@@ -53,98 +40,50 @@ Subject To
  UNIQUE_PATTERN(15): Lambda(15)  = 1
  UNIQUE_PATTERN(16): Lambda(16)  = 1
  UNIQUE_PATTERN(17): Lambda(17)  = 1
- UNIQUE_PATTERN(18): Lambda(18) + Lambda(98) + Lambda(115)  = 1
- UNIQUE_PATTERN(19): Lambda(19) + Lambda(110) + Lambda(126)  = 1
- UNIQUE_PATTERN(20): Lambda(20) + Lambda(124) + Lambda(125)  = 1
- UNIQUE_PATTERN(21): Lambda(21) + Lambda(120) + Lambda(121)  = 1
- UNIQUE_PATTERN(22): Lambda(22) + Lambda(108) + Lambda(109) + Lambda(127)  = 1
- UNIQUE_PATTERN(23): Lambda(23) + Lambda(101) + Lambda(116)  = 1
- UNIQUE_PATTERN(24): Lambda(24) + Lambda(97) + Lambda(100)  = 1
- UNIQUE_PATTERN(25): Lambda(25) + Lambda(85) + Lambda(96) + Lambda(111)
-                     + Lambda(114) + Lambda(122)  = 1
- UNIQUE_PATTERN(26): Lambda(26) + Lambda(88) + Lambda(95) + Lambda(107)
-                     + Lambda(119)  = 1
- UNIQUE_PATTERN(27): Lambda(27) + Lambda(89) + Lambda(92) + Lambda(113)  = 1
- UNIQUE_PATTERN(28): Lambda(28) + Lambda(81) + Lambda(82) + Lambda(83)
-                     + Lambda(104)  = 1
- UNIQUE_PATTERN(29): Lambda(29) + Lambda(62) + Lambda(80) + Lambda(93)
-                     + Lambda(99) + Lambda(102) + Lambda(117) + Lambda(118)
-                      = 1
- UNIQUE_PATTERN(30): Lambda(30) + Lambda(60) + Lambda(75) + Lambda(86)
-                     + Lambda(105) + Lambda(117) + Lambda(123)  = 1
- UNIQUE_PATTERN(31): Lambda(31) + Lambda(75) + Lambda(76) + Lambda(78)
-                     + Lambda(91) + Lambda(112) + Lambda(118)  = 1
- UNIQUE_PATTERN(32): Lambda(32) + Lambda(72) + Lambda(73) + Lambda(74)
-                     + Lambda(84) + Lambda(90) + Lambda(103) + Lambda(106)
-                     + Lambda(123)  = 1
- UNIQUE_PATTERN(33): Lambda(33) + Lambda(69) + Lambda(70) + Lambda(71)
-                     + Lambda(83) + Lambda(94) + Lambda(128)  = 1
- UNIQUE_PATTERN(34): Lambda(34) + Lambda(65) + Lambda(66) + Lambda(67)
-                     + Lambda(74) + Lambda(77) + Lambda(94) + Lambda(104)
-                     + Lambda(128)  = 1
- UNIQUE_PATTERN(35): Lambda(35) + Lambda(65) + Lambda(66) + Lambda(69)
-                     + Lambda(84) + Lambda(92)  = 1
- UNIQUE_PATTERN(36): Lambda(36) + Lambda(59) + Lambda(61) + Lambda(62)
-                     + Lambda(63) + Lambda(106) + Lambda(119)  = 1
- UNIQUE_PATTERN(37): Lambda(37) + Lambda(55) + Lambda(59) + Lambda(68)
-                     + Lambda(79) + Lambda(80) + Lambda(87) + Lambda(97)  = 1
- UNIQUE_PATTERN(38): Lambda(38) + Lambda(55) + Lambda(56) + Lambda(57)
-                     + Lambda(58) + Lambda(64) + Lambda(81) + Lambda(96)
-                     + Lambda(110)  = 1
- UNIQUE_PATTERN(39): Lambda(39) + Lambda(53) + Lambda(54) + Lambda(55)
-                     + Lambda(63) + Lambda(72) + Lambda(78) + Lambda(91)
-                     + Lambda(95) + Lambda(109) + Lambda(113) + Lambda(122)
-                      = 1
- UNIQUE_PATTERN(40): Lambda(40) + Lambda(53) + Lambda(54) + Lambda(57)
-                     + Lambda(58) + Lambda(60) + Lambda(64) + Lambda(73)
-                     + Lambda(76) + Lambda(85) + Lambda(101)  = 1
- UNIQUE_PATTERN(41): Lambda(41) + Lambda(53) + Lambda(54) + Lambda(56)
-                     + Lambda(57) + Lambda(59) + Lambda(70) + Lambda(71)
-                     + Lambda(78) + Lambda(79) + Lambda(86) + Lambda(98)
-                     + Lambda(116) + Lambda(121) + Lambda(124)  = 1
- UNIQUE_PATTERN(42): Lambda(42) + Lambda(53) + Lambda(54) + Lambda(56)
-                     + Lambda(58) + Lambda(60) + Lambda(61) + Lambda(68)
-                     + Lambda(77) + Lambda(79) + Lambda(82) + Lambda(85)
-                     + Lambda(102) + Lambda(103) + Lambda(111) + Lambda(116)
-                     + Lambda(120)  = 1
- UNIQUE_PATTERN(43): Lambda(43) + Lambda(51) + Lambda(53) + Lambda(61)
-                     + Lambda(64) + Lambda(67) + Lambda(68) + Lambda(70)
-                     + Lambda(74) + Lambda(82) + Lambda(87) + Lambda(89)
-                     + Lambda(112) + Lambda(114)  = 1
+ UNIQUE_PATTERN(18): Lambda(18)  = 1
+ UNIQUE_PATTERN(19): Lambda(19)  = 1
+ UNIQUE_PATTERN(20): Lambda(20)  = 1
+ UNIQUE_PATTERN(21): Lambda(21)  = 1
+ UNIQUE_PATTERN(22): Lambda(22)  = 1
+ UNIQUE_PATTERN(23): Lambda(23)  = 1
+ UNIQUE_PATTERN(24): Lambda(24)  = 1
+ UNIQUE_PATTERN(25): Lambda(25)  = 1
+ UNIQUE_PATTERN(26): Lambda(26)  = 1
+ UNIQUE_PATTERN(27): Lambda(27)  = 1
+ UNIQUE_PATTERN(28): Lambda(28)  = 1
+ UNIQUE_PATTERN(29): Lambda(29)  = 1
+ UNIQUE_PATTERN(30): Lambda(30)  = 1
+ UNIQUE_PATTERN(31): Lambda(31)  = 1
+ UNIQUE_PATTERN(32): Lambda(32)  = 1
+ UNIQUE_PATTERN(33): Lambda(33)  = 1
+ UNIQUE_PATTERN(34): Lambda(34)  = 1
+ UNIQUE_PATTERN(35): Lambda(35)  = 1
+ UNIQUE_PATTERN(36): Lambda(36)  = 1
+ UNIQUE_PATTERN(37): Lambda(37)  = 1
+ UNIQUE_PATTERN(38): Lambda(38)  = 1
+ UNIQUE_PATTERN(39): Lambda(39)  = 1
+ UNIQUE_PATTERN(40): Lambda(40)  = 1
+ UNIQUE_PATTERN(41): Lambda(41)  = 1
+ UNIQUE_PATTERN(42): Lambda(42) + Lambda(51) + Lambda(53) + Lambda(54)
+                     + Lambda(55) + Lambda(56) + Lambda(57) + Lambda(58)
+                     + Lambda(59) + Lambda(60) + Lambda(61) + Lambda(62)
+                     + Lambda(63) + Lambda(64) + Lambda(65)  = 1
+ UNIQUE_PATTERN(43): Lambda(43)  = 1
  UNIQUE_PATTERN(44): Lambda(44) + Lambda(51) + Lambda(52) + Lambda(54)
-                     + Lambda(61) + Lambda(64) + Lambda(67) + Lambda(68)
-                     + Lambda(69) + Lambda(72) + Lambda(81) + Lambda(90)
-                     + Lambda(91) + Lambda(93) + Lambda(94) + Lambda(99)
-                     + Lambda(102) + Lambda(105) + Lambda(106) + Lambda(107)
-                     + Lambda(120)  = 1
- UNIQUE_PATTERN(45): Lambda(45) + Lambda(51) + Lambda(52) + Lambda(56)
-                     + Lambda(60) + Lambda(63) + Lambda(67) + Lambda(76)
-                     + Lambda(77) + Lambda(78) + Lambda(87) + Lambda(88)
-                     + Lambda(90) + Lambda(99) + Lambda(100) + Lambda(101)
-                     + Lambda(111)  = 1
+                     + Lambda(60) + Lambda(61)  = 1
+ UNIQUE_PATTERN(45): Lambda(45) + Lambda(51) + Lambda(52) + Lambda(55)
+                     + Lambda(60) + Lambda(63)  = 1
  UNIQUE_PATTERN(46): Lambda(46) + Lambda(51) + Lambda(52) + Lambda(57)
-                     + Lambda(61) + Lambda(63) + Lambda(65) + Lambda(70)
-                     + Lambda(73) + Lambda(77) + Lambda(86) + Lambda(87)
-                     + Lambda(88) + Lambda(99) + Lambda(100) + Lambda(102)
-                     + Lambda(103) + Lambda(108) + Lambda(112) + Lambda(113)
-                     + Lambda(114) + Lambda(123) + Lambda(128)  = 1
- UNIQUE_PATTERN(47): Lambda(47) + Lambda(51) + Lambda(52) + Lambda(57)
-                     + Lambda(62) + Lambda(71) + Lambda(79) + Lambda(87)
-                     + Lambda(90) + Lambda(91) + Lambda(103) + Lambda(105)
-                     + Lambda(107) + Lambda(108) + Lambda(121) + Lambda(125)
-                      = 1
- UNIQUE_PATTERN(48): Lambda(48) + Lambda(51) + Lambda(52) + Lambda(58)
-                     + Lambda(63) + Lambda(66) + Lambda(67) + Lambda(68)
-                     + Lambda(71) + Lambda(73) + Lambda(82) + Lambda(86)
-                     + Lambda(89) + Lambda(90) + Lambda(93) + Lambda(95)
-                     + Lambda(112) + Lambda(115) + Lambda(124)  = 1
- UNIQUE_PATTERN(49): Lambda(49) + Lambda(51) + Lambda(52) + Lambda(58)
-                     + Lambda(64) + Lambda(65) + Lambda(71) + Lambda(72)
-                     + Lambda(75) + Lambda(76) + Lambda(80) + Lambda(89)
-                     + Lambda(99) + Lambda(109) + Lambda(126)  = 1
- UNIQUE_PATTERN(50): Lambda(50) + Lambda(51) + Lambda(52) + Lambda(58)
-                     + Lambda(64) + Lambda(66) + Lambda(70) + Lambda(72)
-                     + Lambda(76) + Lambda(77) + Lambda(79) + Lambda(84)
-                     + Lambda(88) + Lambda(93) + Lambda(98) + Lambda(108)
-                     + Lambda(122) + Lambda(126)  = 1
+                     + Lambda(60) + Lambda(65)  = 1
+ UNIQUE_PATTERN(47): Lambda(47) + Lambda(51) + Lambda(52) + Lambda(58)
+                     + Lambda(60) + Lambda(64)  = 1
+ UNIQUE_PATTERN(48): Lambda(48) + Lambda(51) + Lambda(52) + Lambda(59)
+                     + Lambda(61) + Lambda(62) + Lambda(63) + Lambda(64)
+                     + Lambda(65)  = 1
+ UNIQUE_PATTERN(49): Lambda(49) + Lambda(51) + Lambda(52) + Lambda(56)
+                     + Lambda(60) + Lambda(62)  = 1
+ UNIQUE_PATTERN(50): Lambda(50) + Lambda(52) + Lambda(53) + Lambda(54)
+                     + Lambda(55) + Lambda(56) + Lambda(57) + Lambda(58)
+                     + Lambda(59) + Lambda(60) + Lambda(61) + Lambda(62)
+                     + Lambda(63) + Lambda(64) + Lambda(65)  = 1
 End
