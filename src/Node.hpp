@@ -6,6 +6,7 @@
 class NodeInfo{
 public:
     int id;
+	int parent_id;
     std::vector<std::pair<int, int> > mustBeTogether;
     std::vector<std::pair<int, int> > mustBeSeparated;
 

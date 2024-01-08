@@ -8,12 +8,14 @@
 #include "Model.hpp"
 #include "Node.hpp"
 
-typedef struct NodeRes{
-    Master master;
+class NodeRes{
+public:
+	Master master;
     double numberOfBins;
     IloAlgorithm::Status status;
 
     NodeRes(Master master, double numberOfBins, IloAlgorithm::Status status);
+	NodeRes(){}
 };
 
 

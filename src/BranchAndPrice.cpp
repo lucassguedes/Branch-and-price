@@ -63,32 +63,63 @@ bool isAnIntegerSolution(const NodeRes &res)
 
 void branchAndPrice(Data * data, NodeInfo nodeInfo)
 {
-    NodeRes res = columnGeneration(data, nodeInfo);
-    if(res.status == IloAlgorithm::Optimal && isAnIntegerSolution(res)){
-        /*Podar*/
+    
+	//Busca em largura - iterativo
+	std::vector<NodeInfo> nodes; //Nós da árvore, cada qual com seus pares proibidos e obrigatórios/
+	std::vector<std::vector<double> > z; //Verificar se z terá sempre o mesmo tamanho. Se sim, alocar apenas uma vez
+	std::pair<int, int> target; //Par de itens que precisam estar juntos/separados
+    NodeRes res;
+
+    nodes.push_back(nodeInfo);
+	int root = 0;
+	nodes[0].id = 0;
+	double bestKnownResult = -std::numeric_limits<double>::infinity();
+	int numberOfNodes=1;
+	std::cout << nodes[root] << "\n";
+    while(true){
+    	res = columnGeneration(data, nodes[root]); //Obter resultado da geração de colunas
+		getchar();
+		if(isAnIntegerSolution(res)){//Se a solução for inteira
+			std::cout << "Encontrou uma solução inteira!\n";
+			if(res.numberOfBins <= data->numberOfItems && res.numberOfBins >= bestKnownResult){
+				bestKnownResult = res.numberOfBins;
+				std::cout << "Novo melhor resultado = " << bestKnownResult << "\n";
+				getchar();
+			}
+		}
+		else{//senão
+			z = getZ(res, data->numberOfItems);
+        	target = getTargetPair(z, nodes[root]);//Obtendo novo par de itens que devem ficar juntos/separados
+			if(target == std::make_pair(-1, -1)){//Se não for ramificar
+				root++;
+				break;
+			}else{
+				NodeInfo child1 = nodes[root];
+				child1.id = numberOfNodes;
+				child1.mustBeTogether.push_back(target);
+				std::cout << child1 << "\n";
+				NodeInfo child2 = nodes[root];
+				child2.id = numberOfNodes+1;
+				child2.mustBeSeparated.push_back(target);
+				std::cout << child2 << "\n";
+
+				numberOfNodes+=2;
+
+				nodes.push_back(child1);
+				nodes.push_back(child2);
+				root++;
+				std::cout << "root = " << root << "\n";
+			}
+		}
+		
+	}
+	/*if(res.status == IloAlgorithm::Optimal && isAnIntegerSolution(res)){
+        //Podar
         std::cout << "Finalizado!\n";
     }else{
         std::cout << "Status da última execução: " << res.status << "\n";
-        // getchar();
-        /*Obter valores de z_ij*/
-        /*Chamar o branchAndPrice novamente
-            - Proibindo os itens i e j de ficarem juntos
-            - Obrigando os itens i e j a ficarem juntos
-            - Importante repassar os dados anteriormente obtidos de nodeInfo para as ramificações
-        */
-       std::vector<std::vector<double> > z = getZ(res, data->numberOfItems);
-
-    //    for(int i = 0; i < z.size(); i++)
-    //    {
-    //         for(int j = 0; j < z[i].size(); j++)
-    //         {
-    //             if(z[i][j] > EPSILON)
-    //             {
-    //                 std::cout << "z[" << i << "][" << j << "] = " << z[i][j] << "\n";
-    //             }
-    //         }
-    //    }
-
+        std::vector<std::vector<double> > z = getZ(res, data->numberOfItems);
+		
        std::pair<int, int> target = getTargetPair(z, nodeInfo);
     
        std::cout << "Target: (" << target.first << ", " << target.second << ")\n";
@@ -102,5 +133,5 @@ void branchAndPrice(Data * data, NodeInfo nodeInfo)
             branchAndPrice(data, child2);
        }
 
-    }
+    }*/
 }
