@@ -9,7 +9,6 @@ public:
 	int parent_id;
     std::vector<std::pair<int, int> > mustBeTogether;
     std::vector<std::pair<int, int> > mustBeSeparated;
-
     NodeInfo(){}
 
     friend std::ostream& operator << (std::ostream& os, const NodeInfo& node);

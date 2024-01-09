@@ -25,11 +25,8 @@ int main(int argc, char** argv)
 
     NodeInfo node;
 
-    node.id = 1;
-    node.mustBeSeparated.push_back(std::make_pair(1, 2));
-    node.mustBeTogether.push_back(std::make_pair(4, 5));
-
-    branchAndPrice(data, NodeInfo());
+    node.id = 0;
+    branchAndPrice(data, node);
 
 
     delete data;

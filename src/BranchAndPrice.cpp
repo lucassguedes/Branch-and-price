@@ -2,6 +2,18 @@
 
 #define EPSILON 1e-6
 
+class NodeData{
+public:
+	NodeInfo nodeInfo;
+	Master master;
+
+	NodeData(NodeInfo nodeInfo, Master master){
+		this->nodeInfo = nodeInfo;
+		this->master = master;
+	}
+};
+
+
 std::vector<std::vector<double> > getZ(NodeRes res, const int nItems)
 {
     std::vector<std::vector<double> > z = std::vector<std::vector<double> > (nItems, std::vector<double>(nItems, 0));
@@ -63,53 +75,61 @@ bool isAnIntegerSolution(const NodeRes &res)
 
 void branchAndPrice(Data * data, NodeInfo nodeInfo)
 {
-    
+	IloEnv env;
+    env.setOut(env.getNullStream());
+    env.setWarning(env.getNullStream());
+
+    env.setName("Bin Packing");
+
+    Master master = createMasterModel(data, env);
 	//Busca em largura - iterativo
-	std::vector<NodeInfo> nodes; //Nós da árvore, cada qual com seus pares proibidos e obrigatórios/
+	std::vector<NodeData> nodes; //Nós da árvore, cada qual com seus pares proibidos e obrigatórios/
 	std::vector<std::vector<double> > z; //Verificar se z terá sempre o mesmo tamanho. Se sim, alocar apenas uma vez
 	std::pair<int, int> target; //Par de itens que precisam estar juntos/separados
     NodeRes res;
 
-    nodes.push_back(nodeInfo);
+    nodes.push_back(NodeData(nodeInfo, master));
 	int root = 0;
-	nodes[0].id = 0;
 	double bestKnownResult = -std::numeric_limits<double>::infinity();
 	int numberOfNodes=1;
-	std::cout << nodes[root] << "\n";
+	std::cout << nodes[root].nodeInfo << "\n";
     while(true){
-    	res = columnGeneration(data, nodes[root]); //Obter resultado da geração de colunas
-		getchar();
+    	res = columnGeneration(data, nodes[root].master, env, nodes[root].nodeInfo); //Obter resultado da geração de colunas
 		if(isAnIntegerSolution(res)){//Se a solução for inteira
 			std::cout << "Encontrou uma solução inteira!\n";
+			root++;
+			getchar();
 			if(res.numberOfBins <= data->numberOfItems && res.numberOfBins >= bestKnownResult){
 				bestKnownResult = res.numberOfBins;
 				std::cout << "Novo melhor resultado = " << bestKnownResult << "\n";
 				getchar();
 			}
 		}
-		else{//senão
+		else if(res.numberOfBins <= data->numberOfItems){//senão
 			z = getZ(res, data->numberOfItems);
-        	target = getTargetPair(z, nodes[root]);//Obtendo novo par de itens que devem ficar juntos/separados
+        	target = getTargetPair(z, nodes[root].nodeInfo);//Obtendo novo par de itens que devem ficar juntos/separados
 			if(target == std::make_pair(-1, -1)){//Se não for ramificar
 				root++;
 				break;
 			}else{
-				NodeInfo child1 = nodes[root];
+				NodeInfo child1 = nodes[root].nodeInfo;
 				child1.id = numberOfNodes;
 				child1.mustBeTogether.push_back(target);
 				std::cout << child1 << "\n";
-				NodeInfo child2 = nodes[root];
+				NodeInfo child2 = nodes[root].nodeInfo;
 				child2.id = numberOfNodes+1;
 				child2.mustBeSeparated.push_back(target);
 				std::cout << child2 << "\n";
 
 				numberOfNodes+=2;
 
-				nodes.push_back(child1);
-				nodes.push_back(child2);
+				nodes.push_back(NodeData(child1, nodes[root].master));
+				nodes.push_back(NodeData(child2, nodes[root].master));
 				root++;
 				std::cout << "root = " << root << "\n";
 			}
+		}else{
+			root++;
 		}
 		
 	}

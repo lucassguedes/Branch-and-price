@@ -19,7 +19,7 @@ public:
 };
 
 
-NodeRes columnGeneration(Data * data, NodeInfo nodeInfo);
+NodeRes columnGeneration(Data * data, Master &master, IloEnv &env, NodeInfo nodeInfo);
 
 
 

@@ -8,20 +8,16 @@ NodeRes::NodeRes(Master master, double numberOfBins, IloAlgorithm::Status status
 }
 
 
-NodeRes columnGeneration(Data * data, NodeInfo nodeInfo){
-    IloEnv env;
+NodeRes columnGeneration(Data * data, Master &master, IloEnv &env, NodeInfo nodeInfo){
 
-    env.setOut(env.getNullStream());
-    env.setWarning(env.getNullStream());
+    //env.setOut(env.getNullStream());
+    //env.setWarning(env.getNullStream());
 
-    env.setName("Bin Packing");
+    //env.setName("Bin Packing");
 
     const int n = data->getNumberOfItems(); /**Número total de itens*/
 
     char varname[100];
-
-    Master master = createMasterModel(data, env);
-
 
     double pricingResult;
     double masterResult;  
@@ -116,7 +112,7 @@ NodeRes columnGeneration(Data * data, NodeInfo nodeInfo){
 
     }
     IloAlgorithm::Status status = masterSolver.getStatus();
-    env.end();    
+    //env.end();    
 
     return NodeRes(master, masterResult, status);
 }
