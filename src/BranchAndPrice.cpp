@@ -14,7 +14,15 @@ std::vector<std::vector<double> > getZ(NodeRes res, const int nItems)
         {
             for(int j = i+1; j < nPatternItems; j++)
             {
-                z[i][j] += p.value;
+				int x, y;
+
+				x = p.activated_x[i];
+				y = p.activated_x[j];
+
+				if(x > y){
+					std::swap(x, y);
+				}
+                z[x][y] += p.value;
             }
         }
     }
@@ -63,44 +71,32 @@ bool isAnIntegerSolution(const NodeRes &res)
 
 void branchAndPrice(Data * data, NodeInfo nodeInfo)
 {
-    NodeRes res = columnGeneration(data, nodeInfo);
-    if(res.status == IloAlgorithm::Optimal && isAnIntegerSolution(res)){
-        /*Podar*/
-        std::cout << "Finalizado!\n";
-    }else{
-        std::cout << "Status da última execução: " << res.status << "\n";
-        // getchar();
-        /*Obter valores de z_ij*/
-        /*Chamar o branchAndPrice novamente
-            - Proibindo os itens i e j de ficarem juntos
-            - Obrigando os itens i e j a ficarem juntos
-            - Importante repassar os dados anteriormente obtidos de nodeInfo para as ramificações
-        */
-       std::vector<std::vector<double> > z = getZ(res, data->numberOfItems);
+    IloEnv env;
+    Master master = createMasterModel(data, env);
 
-    //    for(int i = 0; i < z.size(); i++)
-    //    {
-    //         for(int j = 0; j < z[i].size(); j++)
-    //         {
-    //             if(z[i][j] > EPSILON)
-    //             {
-    //                 std::cout << "z[" << i << "][" << j << "] = " << z[i][j] << "\n";
-    //             }
-    //         }
-    //    }
+    env.setOut(env.getNullStream());
+    env.setWarning(env.getNullStream());
 
-       std::pair<int, int> target = getTargetPair(z, nodeInfo);
+    env.setName("Bin Packing");
+
+    IloCplex masterSolver(master.model);
+    masterSolver.setParam(IloCplex::TiLim, 3600);
+    masterSolver.setParam(IloCplex::Threads, 1);
+    masterSolver.setParam(IloCplex::Param::MIP::Tolerances::MIPGap, 1e-08);
+
+
+    IloCplex pricingSolver(env);
+    pricingSolver.setParam(IloCplex::TiLim, 3600);
+    pricingSolver.setParam(IloCplex::Threads, 1);
+    pricingSolver.setParam(IloCplex::Param::MIP::Tolerances::MIPGap, 1e-08);
+
     
-       std::cout << "Target: (" << target.first << ", " << target.second << ")\n";
-       if(target != std::make_pair(-1, -1))
-       {
-            NodeInfo child1 = nodeInfo;
-            child1.mustBeTogether.push_back(target);
-            branchAndPrice(data, child1);
-            NodeInfo child2 = nodeInfo;
-            child2.mustBeSeparated.push_back(target);
-            branchAndPrice(data, child2);
-       }
 
+    int n = 1000;
+    while(n--)
+    {
+        NodeRes res = columnGeneration(data, env, masterSolver, pricingSolver, master, nodeInfo); 
     }
+    
+    env.end();    
 }

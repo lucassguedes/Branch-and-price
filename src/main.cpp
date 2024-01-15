@@ -9,6 +9,27 @@
 #include "ColumnGeneration.hpp"
 #include "BranchAndPrice.hpp"
 
+
+// size_t allocated = 0;
+// size_t freed = 0;
+
+// void operator delete(void* p, size_t size){
+
+// 	std::cout << "Freeing: " << size << " bytes\n";
+// 	freed += size;
+// 	free(p);
+// }
+
+// void* operator new(size_t size){
+
+// 	allocated += size;
+// 	std::cout << "Allocating: " << size  << " bytes\n";
+
+// 	return malloc(size);
+// }
+
+
+
 int main(int argc, char** argv)
 {
 
@@ -22,12 +43,6 @@ int main(int argc, char** argv)
     Data* data = new Data();
 
     data->readData(argv[1]);
-
-    NodeInfo node;
-
-    node.id = 1;
-    node.mustBeSeparated.push_back(std::make_pair(1, 2));
-    node.mustBeTogether.push_back(std::make_pair(4, 5));
 
     branchAndPrice(data, NodeInfo());
 

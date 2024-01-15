@@ -17,7 +17,7 @@ typedef struct NodeRes{
 };
 
 
-NodeRes columnGeneration(Data * data, NodeInfo nodeInfo);
+NodeRes columnGeneration(Data * data, IloEnv &env, IloCplex &masterSolver, IloCplex &pricingSolver, Master &master, NodeInfo nodeInfo);
 
 
 
