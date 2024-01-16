@@ -9,6 +9,39 @@ this->activated_x = activated_x;
 
 void Master::setBounds(NodeInfo nodeInfo){
   std::cout << nodeInfo << std::endl;
+
+  const unsigned int nPatterns = this->patterns.size();
+  bool deactivated = false;
+  for(unsigned int i = 0; i < nPatterns; i++){
+    /*As variáveis que possuirem em seu padrão dois itens i e j
+        que   não   podem  ficar  juntos  devem  ter  seu  limite
+        superior modificado para zero.
+    */
+    this->patterns[i].var.setUB(IloInfinity);
+    for(auto &[first, second] : nodeInfo.mustBeSeparated){
+        if(this->patterns[i].activated_x[first] && this->patterns[i].activated_x[second]){
+            this->patterns[i].var.setUB(0);  
+            deactivated = true;
+            break;
+        }
+    }
+
+    if(deactivated){
+        deactivated = false;
+        continue;
+    }
+
+    /*Analogamente,  as variáveis que não contiverem simultaneamente
+        dois itens i e j que precisam estar juntos, terão seus limites
+        superiores modificados para zero.
+    */
+    for(auto &[first, second] : nodeInfo.mustBeTogether){
+        if(this->patterns[i].activated_x[first] == !(this->patterns[i].activated_x[second])){
+            this->patterns[i].var.setUB(0);
+            break;
+        }
+    }
+  }
 }
 
 Master::Master(IloEnv env)
