@@ -12,9 +12,10 @@ class Pattern
 public:
     IloNumVar var;
     double value;
-    std::vector<int> activated_x;
 
-    Pattern(IloNumVar var, std::vector<int> activated_x);
+    std::vector<bool> activated_x;
+
+    Pattern(IloNumVar var, std::vector<bool> activated_x);
 };
 
 class Master
@@ -28,8 +29,10 @@ public:
     Master(IloEnv env);
     Master(){}
 
-    void addVar(IloEnv env, char *name, std::vector<int> activated_x);
+    void addVar(IloEnv env, char *name, std::vector<bool> activated_x);
     void addConstraint(IloRange cst);
+
+    void setBounds(NodeInfo nodeInfo);
 
     int getNumberOfConstraints();
     int getNumberOfVariables();

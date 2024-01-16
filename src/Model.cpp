@@ -1,10 +1,14 @@
 #include "Model.hpp"
 
 
-Pattern::Pattern(IloNumVar var, std::vector<int>activated_x)
+Pattern::Pattern(IloNumVar var, std::vector<bool>activated_x)
 {
 this->var = var;
 this->activated_x = activated_x;
+}
+
+void Master::setBounds(NodeInfo nodeInfo){
+  std::cout << nodeInfo << std::endl;
 }
 
 Master::Master(IloEnv env)
@@ -14,7 +18,7 @@ Master::Master(IloEnv env)
     this->objective = IloExpr(env);
 }
 
-void Master::addVar(IloEnv env, char*name, std::vector<int> activated_x)
+void Master::addVar(IloEnv env, char*name, std::vector<bool> activated_x)
 {
     IloNumVar newvar = IloNumVar(env, 0, IloInfinity, name);
     this->patterns.push_back(Pattern(newvar, activated_x));
@@ -59,10 +63,13 @@ Master createMasterModel(Data *data, IloEnv env)
   const int n = data->getNumberOfItems(); /**Número total de itens*/
   char varname[100];
   /*Obtendo conjunto inicial de padrões, cada um contendo apenas um item*/
+  std::vector<bool>activated_x(data->getNumberOfItems(), false);
   for(int i = 0; i < n; i++)
   {
     sprintf(varname, "Lambda(%d)", i+1);
-    master.addVar(env, varname, std::vector<int>({i+1}));
+    activated_x[i] = true;
+    master.addVar(env, varname, activated_x);
+    activated_x[i] = false;
   }
 
    /*Função objetivo*/
@@ -160,7 +167,6 @@ Pricing createPricingModel(Data * data, NodeInfo &nodeInfo, std::vector<double> 
 
   return pricing;
 }
-
 
 void updatePricingCoefficients(Pricing &pricing, const int nCons, std::vector<double>&pi)
 {

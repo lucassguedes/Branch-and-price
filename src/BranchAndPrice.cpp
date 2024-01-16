@@ -6,23 +6,21 @@ std::vector<std::vector<double> > getZ(NodeRes res, const int nItems)
 {
     std::vector<std::vector<double> > z = std::vector<std::vector<double> > (nItems, std::vector<double>(nItems, 0));
 
-    int nPatternItems;
+    int x, y;
     for(Pattern p : res.master.patterns)
     {
-        nPatternItems = p.activated_x.size();
-        for(int i = 0; i < nPatternItems; i++)
+        for(int i = 0; i < nItems; i++)
         {
-            for(int j = i+1; j < nPatternItems; j++)
+            for(int j = i+1; j < nItems; j++)
             {
-				int x, y;
-
-				x = p.activated_x[i];
-				y = p.activated_x[j];
-
-				if(x > y){
-					std::swap(x, y);
-				}
-                z[x][y] += p.value;
+				if(p.activated_x[i] && p.activated_x[j]){
+                    x = i;
+                    y = j;
+                    if(x > y){
+                        std::swap(x, y);
+                    }
+                    z[x][y] += p.value;
+                }
             }
         }
     }
@@ -92,7 +90,7 @@ void branchAndPrice(Data * data, NodeInfo nodeInfo)
 
     
 
-    int n = 1000;
+    int n = 1;
     while(n--)
     {
         NodeRes res = columnGeneration(data, env, masterSolver, pricingSolver, master, nodeInfo); 
