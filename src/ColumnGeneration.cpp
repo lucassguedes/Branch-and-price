@@ -1,8 +1,7 @@
 #include "ColumnGeneration.hpp"
 
 
-NodeRes::NodeRes(Master master, double numberOfBins, IloAlgorithm::Status status){
-  this->master = master;
+NodeRes::NodeRes(double numberOfBins, IloAlgorithm::Status status){
   this->numberOfBins = numberOfBins;
   this->status = status;
 }
@@ -37,6 +36,12 @@ NodeRes columnGeneration(Data * data, IloEnv &env, IloCplex &masterSolver, IloCp
         solveMaster(master, masterSolver);
 
         // masterSolver.exportModel("master.lp");
+
+        if(masterSolver.getStatus() != IloAlgorithm::Optimal)
+        {
+          // std::cout << "Solução: " << masterSolver.getStatus() << std::endl;
+          return NodeRes(masterResult, masterSolver.getStatus());
+        }
 
         masterResult = masterSolver.getObjValue();
         /*Obtendo valores das variáveis duais do master*/
@@ -81,10 +86,10 @@ NodeRes columnGeneration(Data * data, IloEnv &env, IloCplex &masterSolver, IloCp
         }else
         {
           
-          std::cout << "Result: " << masterResult << "\n";
+          // std::cout << "Result: " << masterResult << "\n";
 
           nVar = master.getNumberOfVariables();
-          std::cout << "Nº of master variables: " << nVar << "\n";
+          // std::cout << "Nº of master variables: " << nVar << "\n";
           // std::cout << "Variables: \n";
           for(int i = 0; i < nVar; i++)
           {
@@ -100,5 +105,5 @@ NodeRes columnGeneration(Data * data, IloEnv &env, IloCplex &masterSolver, IloCp
     }
     IloAlgorithm::Status status = masterSolver.getStatus();
 
-    return NodeRes(master, masterResult, status);
+    return NodeRes(masterResult, status);
 }

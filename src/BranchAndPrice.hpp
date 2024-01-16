@@ -7,7 +7,7 @@
 #include <algorithm>
 
 void branchAndPrice(Data * data, NodeInfo nodeInfo);
-std::vector<std::vector<double> > getZ(NodeRes res, const int nItems);
+std::vector<std::vector<double> > getZ(const NodeRes& res, const Master& master, const int nItems);
 std::pair<int, int> getTargetPair(const std::vector<std::vector<double> > &z, const NodeInfo &nodeInfo);
 bool isAnIntegerSolution(const NodeRes &res);
 

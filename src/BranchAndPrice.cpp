@@ -2,12 +2,12 @@
 
 #define EPSILON 1e-6
 
-std::vector<std::vector<double> > getZ(NodeRes res, const int nItems)
+std::vector<std::vector<double> > getZ(const NodeRes& res, const Master& master, const int nItems)
 {
     std::vector<std::vector<double> > z = std::vector<std::vector<double> > (nItems, std::vector<double>(nItems, 0));
 
     int x, y;
-    for(Pattern p : res.master.patterns)
+    for(Pattern p : master.patterns)
     {
         for(int i = 0; i < nItems; i++)
         {
@@ -55,9 +55,9 @@ std::pair<int, int> getTargetPair(const std::vector<std::vector<double> > &z, co
     return target;
 }
 
-bool isAnIntegerSolution(const NodeRes &res)
+bool isAnIntegerSolution(const NodeRes &res, const Master& master)
 {
-    for(Pattern p : res.master.patterns)
+    for(Pattern p : master.patterns)
     {
         if(fabs(p.value - (int)p.value) > EPSILON)
         {
@@ -89,11 +89,56 @@ void branchAndPrice(Data * data, NodeInfo nodeInfo)
     pricingSolver.setParam(IloCplex::Param::MIP::Tolerances::MIPGap, 1e-08);
 
     
+    NodeRes res;
+    std::vector<NodeInfo>nodes = {nodeInfo};
+    const int numberOfItems = data->getNumberOfItems();
+    double best_integer = std::numeric_limits<double>::infinity();
 
-    int n = 1;
-    while(n--)
+    double value;
+    std::vector<std::vector<double> > z;
+    std::pair<int, int> target_pair;
+    const std::pair<int, int > invalid_pair = std::make_pair(-1, -1);
+
+    int root_idx = 0;
+    NodeInfo n1, n2;
+    while(true)
     {
-        NodeRes res = columnGeneration(data, env, masterSolver, pricingSolver, master, nodeInfo); 
+        if(root_idx >= nodes.size())
+        {
+            break;
+        }
+        // std::cout << root_idx << "/" << nodes.size() << "\n";
+        res = columnGeneration(data, env, masterSolver, pricingSolver, master, nodes[root_idx]); 
+
+        if(res.status != IloAlgorithm::Optimal || res.numberOfBins > best_integer){
+            root_idx++;
+        }else if(isAnIntegerSolution(res, master))
+        {
+            std::cout << "Encontrou uma solução inteira: " << res.numberOfBins << "\n";
+            value = res.numberOfBins;
+            if(value < best_integer && value < numberOfItems){
+                best_integer = value;
+            }else{
+                break;
+            }
+            root_idx++;
+        }else{ //Se a solução não for inteira, devemos ramificar
+            z = getZ(res, master, numberOfItems);
+            target_pair = getTargetPair(z, nodes[root_idx]);
+
+            if(target_pair != invalid_pair){
+                //Criamos dois ramos
+                n1 = nodes[root_idx];
+                n2 = nodes[root_idx];
+
+                n1.mustBeTogether.push_back(target_pair);
+                n2.mustBeSeparated.push_back(target_pair);
+
+                nodes.push_back(n1);
+                nodes.push_back(n2);   
+            }
+            root_idx++;
+        }   
     }
     
     env.end();    

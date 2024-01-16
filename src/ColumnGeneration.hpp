@@ -9,11 +9,12 @@
 #include "Node.hpp"
 
 typedef struct NodeRes{
-    Master master;
     double numberOfBins;
     IloAlgorithm::Status status;
 
-    NodeRes(Master master, double numberOfBins, IloAlgorithm::Status status);
+
+    NodeRes(){}
+    NodeRes(double numberOfBins, IloAlgorithm::Status status);
 };
 
 
