@@ -41,10 +41,10 @@ std::pair<int, int> getTargetPair(const std::vector<std::vector<double> > &z, co
         for(int j = i+1; j < n; j++)
         {
             dist = fabs(z[i][j] - 0.5);
-            alreadyTogether = (std::find(nodeInfo.mustBeTogether.begin(), nodeInfo.mustBeTogether.end(), std::make_pair(i, j)) != nodeInfo.mustBeTogether.end());
-            alreadySeparated = (std::find(nodeInfo.mustBeSeparated.begin(), nodeInfo.mustBeSeparated.end(), std::make_pair(i, j)) != nodeInfo.mustBeSeparated.end());
+            // alreadyTogether = (std::find(nodeInfo.mustBeTogether.begin(), nodeInfo.mustBeTogether.end(), std::make_pair(i, j)) != nodeInfo.mustBeTogether.end());
+            // alreadySeparated = (std::find(nodeInfo.mustBeSeparated.begin(), nodeInfo.mustBeSeparated.end(), std::make_pair(i, j)) != nodeInfo.mustBeSeparated.end());
             pairIsValid = (!alreadyTogether && !alreadySeparated);
-            if(dist < smallerDist && pairIsValid)
+            if(dist < smallerDist)
             {
                 smallerDist = dist;
                 target = std::make_pair(i, j);
@@ -59,12 +59,31 @@ bool isAnIntegerSolution(const NodeRes &res, const Master& master)
 {
     for(Pattern p : master.patterns)
     {
-        if(fabs(p.value - (int)p.value) > EPSILON)
+        if(p.value > EPSILON && fabs(p.value - (int)p.value) > EPSILON)
         {
             return false;
         }
     }
     return true;
+}
+
+void showResults(Master &master, Data * data){
+    for(auto p : master.patterns)
+    {
+        if(p.value)
+        {
+            double sum = 0;
+            std::cout << "Padrão " << p.var.getName() << "\n";
+            std::cout << "\tItens: ";
+            for(int i = 0; i < p.activated_x.size(); i++){
+                if(p.activated_x[i]){
+                    std::cout << i + 1 << ", ";
+                    sum += data->w[i];
+                }
+            }
+            std::cout << "Comprimento total: " << sum << std::endl;
+        }
+    }
 }
 
 void branchAndPrice(Data * data, NodeInfo nodeInfo)
@@ -80,13 +99,13 @@ void branchAndPrice(Data * data, NodeInfo nodeInfo)
     IloCplex masterSolver(master.model);
     masterSolver.setParam(IloCplex::TiLim, 3600);
     masterSolver.setParam(IloCplex::Threads, 1);
-    masterSolver.setParam(IloCplex::Param::MIP::Tolerances::MIPGap, 1e-08);
+    masterSolver.setParam(IloCplex::Param::MIP::Tolerances::MIPGap, 1e-06);
 
 
     IloCplex pricingSolver(env);
     pricingSolver.setParam(IloCplex::TiLim, 3600);
     pricingSolver.setParam(IloCplex::Threads, 1);
-    pricingSolver.setParam(IloCplex::Param::MIP::Tolerances::MIPGap, 1e-08);
+    pricingSolver.setParam(IloCplex::Param::MIP::Tolerances::MIPGap, 1e-06);
 
     
     NodeRes res;
@@ -101,44 +120,50 @@ void branchAndPrice(Data * data, NodeInfo nodeInfo)
 
     int root_idx = 0;
     NodeInfo n1, n2;
+
+    Master best_master;
     while(true)
     {
         if(root_idx >= nodes.size())
         {
+            showResults(best_master, data);
             break;
         }
+        // std::cout << nodes[root_idx] << "\n";
         // std::cout << root_idx << "/" << nodes.size() << "\n";
         res = columnGeneration(data, env, masterSolver, pricingSolver, master, nodes[root_idx]); 
 
-        if(res.status != IloAlgorithm::Optimal || res.numberOfBins > best_integer){
-            root_idx++;
-        }else if(isAnIntegerSolution(res, master))
-        {
-            std::cout << "Encontrou uma solução inteira: " << res.numberOfBins << "\n";
-            value = res.numberOfBins;
-            if(value < best_integer && value < numberOfItems){
-                best_integer = value;
-            }else{
-                break;
+        if(res.status != IloAlgorithm::Infeasible){
+            if(isAnIntegerSolution(res, master))
+            {
+                std::cout << "Encontrou uma solução inteira: " << res.numberOfBins << "\n";
+                value = res.numberOfBins;
+                if(value < best_integer && value < numberOfItems){
+                    best_master = master;
+                    best_integer = value;
+                }
+                else{
+                    showResults(best_master, data);
+                    break;
+                }
+            }else{ //Se a solução não for inteira, devemos ramificar
+                z = getZ(res, master, numberOfItems);
+                target_pair = getTargetPair(z, nodes[root_idx]);
+
+                if(target_pair != invalid_pair){
+                    //Criamos dois ramos
+                    n1 = nodes[root_idx];
+                    n2 = nodes[root_idx];
+
+                    n1.mustBeTogether.push_back(target_pair);
+                    n2.mustBeSeparated.push_back(target_pair);
+
+                    nodes.push_back(n1);
+                    nodes.push_back(n2);   
+                }
             }
-            root_idx++;
-        }else{ //Se a solução não for inteira, devemos ramificar
-            z = getZ(res, master, numberOfItems);
-            target_pair = getTargetPair(z, nodes[root_idx]);
-
-            if(target_pair != invalid_pair){
-                //Criamos dois ramos
-                n1 = nodes[root_idx];
-                n2 = nodes[root_idx];
-
-                n1.mustBeTogether.push_back(target_pair);
-                n2.mustBeSeparated.push_back(target_pair);
-
-                nodes.push_back(n1);
-                nodes.push_back(n2);   
-            }
-            root_idx++;
         }   
+        root_idx++;
     }
     
     env.end();    

@@ -32,6 +32,9 @@ NodeRes columnGeneration(Data * data, IloEnv &env, IloCplex &masterSolver, IloCp
 
     int newVarIdx, nVar;
     double value;
+    
+    IloAlgorithm::Status master_status;
+    bool defined_status = false;
     while(true){
         solveMaster(master, masterSolver);
 
@@ -40,10 +43,19 @@ NodeRes columnGeneration(Data * data, IloEnv &env, IloCplex &masterSolver, IloCp
         if(masterSolver.getStatus() != IloAlgorithm::Optimal)
         {
           // std::cout << "Solução: " << masterSolver.getStatus() << std::endl;
-          return NodeRes(masterResult, masterSolver.getStatus());
+          if(!defined_status){
+            master_status = masterSolver.getStatus();
+          }
+          return NodeRes(masterResult, master_status);
         }
 
         masterResult = masterSolver.getObjValue();
+
+        master_status = masterSolver.getStatus();
+
+        if(!defined_status){
+          defined_status = true;
+        }
         /*Obtendo valores das variáveis duais do master*/
         /*Valores das variáveis duais, usadas como pesos no subproblema de pricing*/
         for(int i = 0; i < nCons; i++)
@@ -55,9 +67,15 @@ NodeRes columnGeneration(Data * data, IloEnv &env, IloCplex &masterSolver, IloCp
         updatePricingCoefficients(pricing, nCons, pi);
         solvePricing(pricing, pricingSolver);
 
+        if(pricingSolver.getStatus() == IloAlgorithm::Infeasible)
+        {
+          std::cout << "Problema de Princing Inviável!\n";
+          getchar();
+        }
+
         pricingResult = pricingSolver.getObjValue();
 
-        // pricingSolver.exportModel("pricing.lp");
+        pricingSolver.exportModel("pricing.lp");
         
         activated_x = std::vector<bool>(n, false);
         // std::cout << "Pricing result: " << pricingResult << "\n";
@@ -65,7 +83,7 @@ NodeRes columnGeneration(Data * data, IloEnv &env, IloCplex &masterSolver, IloCp
         {
           for(int i = 0; i < n; i++)
           {
-            if(pricingSolver.getValue(pricing.x[i]))activated_x[i]=true;
+            if(pricingSolver.getValue(pricing.x[i]) > 1e-6)activated_x[i]=true;
           }
 
           /*Adicionando nova variável no modelo mestre*/
