@@ -1,9 +1,43 @@
 #include "ColumnGeneration.hpp"
 
-
 NodeRes::NodeRes(double numberOfBins, IloAlgorithm::Status status){
   this->numberOfBins = numberOfBins;
   this->status = status;
+}
+
+void showResults(Master &master, Data * data, IloCplex &masterSolver){
+    for(auto p : master.patterns)
+    {
+
+        if(p.value > EPSILON)
+        {
+			std::cout << p.var.getName() << " = " << p.value << std::endl;
+            double sum = 0;
+            std::cout << "Padrão " << p.var.getName() << "\n";
+            std::cout << "\tItens: ";
+            for(int i = 0; i < p.activated_x.size(); i++){
+                if(p.activated_x[i]){
+                    std::cout << i + 1 << ", ";
+                    sum += data->w[i];
+                }
+            }
+            std::cout << "Comprimento total: " << sum << std::endl;
+        }
+    }
+}
+
+bool isAnIntegerSolution(const Master& master, IloCplex& masterSolver)
+{
+	double value;
+    for(Pattern p : master.patterns)
+    {
+		value = masterSolver.getValue(p.var);
+        if(value > EPSILON && fabs(value - (int)value) > EPSILON)
+        {
+            return false;
+        }
+    }
+    return true;
 }
 
 
@@ -33,9 +67,11 @@ NodeRes columnGeneration(Data * data, IloEnv &env, IloCplex &masterSolver, IloCp
     int newVarIdx, nVar;
     double value;
     
-    IloAlgorithm::Status master_status;
+    IloAlgorithm::Status master_status, best_status;
     bool defined_status = false;
+    double best_integer = std::numeric_limits<double>::infinity();
     while(true){
+		// std::cout << "Executando...\n";
         solveMaster(master, masterSolver);
 
         // masterSolver.exportModel("master.lp");
@@ -44,23 +80,36 @@ NodeRes columnGeneration(Data * data, IloEnv &env, IloCplex &masterSolver, IloCp
         {
           // std::cout << "Solução: " << masterSolver.getStatus() << std::endl;
           if(!defined_status){
-            master_status = masterSolver.getStatus();
+            best_status = masterSolver.getStatus();
           }
-          return NodeRes(masterResult, master_status);
+          return NodeRes(best_integer, best_status);
         }
 
         masterResult = masterSolver.getObjValue();
 
+        // std::cout << "obj: " << masterResult << "\n";
+
         master_status = masterSolver.getStatus();
 
+        if(masterResult < best_integer)
+		{
+			best_integer = masterResult;
+			best_status = master_status;
+		}
+        // if(best_integer < data->getNumberOfItems()){
+		// 	std::cout << "Saindo...\n";
+        // 	return NodeRes(best_integer, best_status);
+        // }
+
+
         if(!defined_status){
-          defined_status = true;
+			defined_status = true;
         }
         /*Obtendo valores das variáveis duais do master*/
         /*Valores das variáveis duais, usadas como pesos no subproblema de pricing*/
         for(int i = 0; i < nCons; i++)
         {
-          pi[i] = masterSolver.getDual(master.constraints[i]);
+			pi[i] = masterSolver.getDual(master.constraints[i]);
         }
 
         /*Atualizando coeficientes da função objetivo do subproblema de pricing*/
@@ -75,7 +124,7 @@ NodeRes columnGeneration(Data * data, IloEnv &env, IloCplex &masterSolver, IloCp
 
         pricingResult = pricingSolver.getObjValue();
 
-        pricingSolver.exportModel("pricing.lp");
+        // pricingSolver.exportModel("pricing.lp");
         
         activated_x = std::vector<bool>(n, false);
         // std::cout << "Pricing result: " << pricingResult << "\n";
@@ -122,6 +171,7 @@ NodeRes columnGeneration(Data * data, IloEnv &env, IloCplex &masterSolver, IloCp
 
     }
     IloAlgorithm::Status status = masterSolver.getStatus();
+	// std::cout << "Saindo...\n";
 
-    return NodeRes(masterResult, status);
+    return NodeRes(best_integer, best_status);
 }

@@ -8,6 +8,8 @@
 #include "Model.hpp"
 #include "Node.hpp"
 
+#define EPSILON 1e-6
+
 typedef struct NodeRes{
     double numberOfBins;
     IloAlgorithm::Status status;
@@ -19,6 +21,8 @@ typedef struct NodeRes{
 
 
 NodeRes columnGeneration(Data * data, IloEnv &env, IloCplex &masterSolver, IloCplex &pricingSolver, Master &master, NodeInfo nodeInfo);
+void showResults(Master &master, Data * data, IloCplex &masterSolver);
+bool isAnIntegerSolution(const Master& master, IloCplex& masterSolver);
 
 
 

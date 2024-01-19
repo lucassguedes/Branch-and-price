@@ -1,7 +1,5 @@
 #include "BranchAndPrice.hpp"
 
-#define EPSILON 1e-6
-
 std::vector<std::vector<double> > getZ(const NodeRes& res, const Master& master, const int nItems)
 {
     std::vector<std::vector<double> > z = std::vector<std::vector<double> > (nItems, std::vector<double>(nItems, 0));
@@ -52,38 +50,12 @@ std::pair<int, int> getTargetPair(const std::vector<std::vector<double> > &z, co
         }
     }
 
+    if(fabs(smallerDist - 0.5) < EPSILON)
+    {
+        exit(0);
+    }
+
     return target;
-}
-
-bool isAnIntegerSolution(const NodeRes &res, const Master& master)
-{
-    for(Pattern p : master.patterns)
-    {
-        if(p.value > EPSILON && fabs(p.value - (int)p.value) > EPSILON)
-        {
-            return false;
-        }
-    }
-    return true;
-}
-
-void showResults(Master &master, Data * data){
-    for(auto p : master.patterns)
-    {
-        if(p.value)
-        {
-            double sum = 0;
-            std::cout << "Padrão " << p.var.getName() << "\n";
-            std::cout << "\tItens: ";
-            for(int i = 0; i < p.activated_x.size(); i++){
-                if(p.activated_x[i]){
-                    std::cout << i + 1 << ", ";
-                    sum += data->w[i];
-                }
-            }
-            std::cout << "Comprimento total: " << sum << std::endl;
-        }
-    }
 }
 
 void branchAndPrice(Data * data, NodeInfo nodeInfo)
@@ -126,7 +98,7 @@ void branchAndPrice(Data * data, NodeInfo nodeInfo)
     {
         if(root_idx >= nodes.size())
         {
-            showResults(best_master, data);
+            // showResults(best_master, data, masterSolver);
             break;
         }
         // std::cout << nodes[root_idx] << "\n";
@@ -134,16 +106,15 @@ void branchAndPrice(Data * data, NodeInfo nodeInfo)
         res = columnGeneration(data, env, masterSolver, pricingSolver, master, nodes[root_idx]); 
 
         if(res.status != IloAlgorithm::Infeasible){
-            if(isAnIntegerSolution(res, master))
+            if(isAnIntegerSolution(master, masterSolver))
             {
-                std::cout << "Encontrou uma solução inteira: " << res.numberOfBins << "\n";
+                std::cout << "(BB) Encontrou uma solução inteira: " << res.numberOfBins << "\n";
                 value = res.numberOfBins;
                 if(value < best_integer && value < numberOfItems){
                     best_master = master;
                     best_integer = value;
-                }
-                else{
-                    showResults(best_master, data);
+                }else{
+                    // showResults(best_master, data, masterSolver);
                     break;
                 }
             }else{ //Se a solução não for inteira, devemos ramificar
