@@ -50,11 +50,6 @@ std::pair<int, int> getTargetPair(const std::vector<std::vector<double> > &z, co
         }
     }
 
-    if(fabs(smallerDist - 0.5) < EPSILON)
-    {
-        exit(0);
-    }
-
     return target;
 }
 
@@ -109,14 +104,12 @@ void branchAndPrice(Data * data, NodeInfo nodeInfo)
             if(isAnIntegerSolution(master, masterSolver))
             {
                 std::cout << "(BB) Encontrou uma solução inteira: " << res.numberOfBins << "\n";
-                value = res.numberOfBins;
-                if(value < best_integer && value < numberOfItems){
-                    best_master = master;
-                    best_integer = value;
-                }else{
-                    // showResults(best_master, data, masterSolver);
-                    break;
-                }
+                // value = res.numberOfBins;
+                // if(value < best_integer && value < numberOfItems){
+                //     best_master = master;
+                //     best_integer = value;
+                // }
+                break;
             }else{ //Se a solução não for inteira, devemos ramificar
                 z = getZ(res, master, numberOfItems);
                 target_pair = getTargetPair(z, nodes[root_idx]);
